@@ -3,7 +3,7 @@ export const SITE = {
   tagline: "AI-сотрудник для вашего бизнеса",
   description:
     "Отвечает клиентам 24/7 в Telegram и WhatsApp. Считает стоимость, записывает на приём, ведёт CRM.",
-  telegramBot: "https://t.me/jamix_demo_bot",
+  telegramBot: "https://t.me/JamiXXXBot",
   telegram: "https://t.me/nariman_jaminov",
   instagram: "https://instagram.com/jamix.ai",
   email: "info@jamix.ai",
