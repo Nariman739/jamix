@@ -3,7 +3,7 @@
 import { FadeIn } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/constants";
-import { Send } from "lucide-react";
+import { Send, MessageCircle } from "lucide-react";
 
 export function CTASection() {
   return (
@@ -49,14 +49,15 @@ export function CTASection() {
               asChild
               variant="outline"
               size="lg"
-              className="rounded-full px-8 text-base"
+              className="rounded-full px-8 text-base gap-2"
             >
               <a
-                href={SITE.telegram}
+                href={SITE.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Написать напрямую
+                <MessageCircle size={18} />
+                Написать в WhatsApp
               </a>
             </Button>
           </div>

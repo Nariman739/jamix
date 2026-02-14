@@ -1,5 +1,5 @@
 import { SITE, NAV_LINKS } from "@/lib/constants";
-import { Send, MessageCircle } from "lucide-react";
+import { Send, MessageCircle, Phone } from "lucide-react";
 
 export function Footer() {
   return (
@@ -35,6 +35,15 @@ export function Footer() {
           <div>
             <h4 className="mb-3 text-sm font-semibold">Контакты</h4>
             <div className="flex flex-col gap-2">
+              <a
+                href={SITE.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Phone size={14} />
+                WhatsApp
+              </a>
               <a
                 href={SITE.telegram}
                 target="_blank"
