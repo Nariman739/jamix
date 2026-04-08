@@ -1,78 +1,60 @@
 "use client";
 
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/motion/fade-in";
-import { MessageSquareText, Plug, Rocket } from "lucide-react";
+import { FadeIn } from "@/components/motion/fade-in";
+import { MessageSquare, Lightbulb, Rocket } from "lucide-react";
 
 const steps = [
   {
-    icon: MessageSquareText,
+    icon: MessageSquare,
     number: "01",
-    title: "Расскажите о бизнесе",
-    description:
-      "Заполните бриф за 5 минут: ниша, услуги, цены, частые вопросы. Мы создадим AI-сотрудника под вашу специфику.",
+    title: "Расскажите о задаче",
+    description: "Опишите ваш бизнес и что хотите автоматизировать. Прямо здесь, в чате на сайте.",
   },
   {
-    icon: Plug,
+    icon: Lightbulb,
     number: "02",
-    title: "Подключаем мессенджеры",
-    description:
-      "Бот подключается к вашему Telegram и WhatsApp. Клиенты пишут как обычно — AI отвечает моментально.",
+    title: "Получите решение",
+    description: "AI-консультант подберёт оптимальное решение. Нариман свяжется и обсудит детали.",
   },
   {
     icon: Rocket,
     number: "03",
-    title: "AI продаёт за вас",
-    description:
-      "Автоматические расчёты, запись на приём, CRM, дожимы. Вы получаете готовых клиентов.",
+    title: "Запуск за дни",
+    description: "Разработаем, настроим, протестируем и запустим. С поддержкой и обучением.",
   },
 ];
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="how-it-works" className="py-24 relative">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <FadeIn>
-          <div className="text-center">
+          <div className="text-center mb-16">
             <h2 className="text-3xl font-bold sm:text-4xl">
               Как это <span className="gradient-text">работает</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              Три простых шага от идеи до работающего AI-сотрудника
+            <p className="mt-4 text-muted-foreground">
+              От идеи до запуска — 3 простых шага
             </p>
           </div>
         </FadeIn>
 
-        <StaggerContainer
-          className="mt-16 grid gap-8 md:grid-cols-3"
-          staggerDelay={0.15}
-        >
+        <div className="grid gap-8 md:grid-cols-3">
           {steps.map((step, i) => (
-            <StaggerItem key={step.number}>
-              <div className="group relative glass rounded-2xl p-6 sm:p-8 glow-hover">
-                {/* Connector line (desktop) */}
-                {i < steps.length - 1 && (
-                  <div className="absolute top-1/2 -right-4 hidden h-px w-8 bg-gradient-to-r from-border to-transparent md:block" />
-                )}
-
-                {/* Number */}
-                <div className="mb-4 text-xs font-mono text-muted-foreground">
+            <FadeIn key={step.number} delay={0.1 + i * 0.15}>
+              <div className="relative glass rounded-2xl p-8 text-center glow-hover">
+                <div className="text-5xl font-black text-brand-purple/10 absolute top-4 right-6">
                   {step.number}
                 </div>
-
-                {/* Icon */}
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <step.icon size={24} className="text-primary" />
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center mx-auto mb-5">
+                  <step.icon size={24} className="text-white" />
                 </div>
-
-                {/* Content */}
-                <h3 className="mb-2 text-lg font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {step.description}
-                </p>
+                <h3 className="text-lg font-semibold mb-3">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
-            </StaggerItem>
+            </FadeIn>
           ))}
-        </StaggerContainer>
+        </div>
       </div>
     </section>
   );

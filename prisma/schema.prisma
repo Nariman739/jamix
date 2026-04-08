@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// CHAT SESSIONS (Lead Qualifier)
+// ============================================
+
+model ChatSession {
+  id            String   @id @default(uuid())
+
+  // Conversation
+  messages      Json     @default("[]")
+  messageCount  Int      @default(0)
+
+  // Visitor metadata
+  visitorId     String
+  userAgent     String?
+  referrer      String?
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  ipCity        String?
+
+  // Extracted lead data (populated by AI)
+  leadData      Json?
+  contactName   String?
+  contactPhone  String?
+  contactTelegram String?
+  businessType  String?
+
+  // Status
+  status        SessionStatus @default(ACTIVE)
+  qualificationScore Int?
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Admin
+  notes         String?
+  isArchived    Boolean  @default(false)
+
+  @@index([status, createdAt])
+  @@index([visitorId])
+}
+
+enum SessionStatus {
+  ACTIVE
+  LEAD_CAPTURED
+  CONTACTED
+  CONVERTED
+  LOST
+}
+
+// ============================================
+// ADMIN AUTH
+// ============================================
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+}

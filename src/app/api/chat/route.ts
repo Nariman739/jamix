@@ -1,114 +1,221 @@
-import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getOpenRouter, AI_MODEL } from "@/lib/openrouter";
+import { buildSystemPrompt } from "@/lib/system-prompt";
+import { extractLeadData, stripLeadBlock, hasPartialLeadBlock } from "@/lib/lead-extractor";
+import { notifyNewLead } from "@/lib/telegram";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-const SYSTEM_PROMPTS: Record<string, string> = {
-  restaurant: `Ты — AI-помощник ресторана "Восток". Ты отвечаешь клиентам, помогаешь забронировать стол, рассказываешь о меню и акциях, принимаешь заказы на доставку.
+export const maxDuration = 60;
 
-Информация о ресторане:
-- Кухня: восточная, европейская
-- Средний чек: 5 000-8 000 ₸
-- Бронь: столики у окна, VIP-зона, основной зал
-- Часы работы: 10:00-23:00 ежедневно
-- Доставка: бесплатно от 5 000 ₸
+// Simple rate limiting (in-memory, resets on cold start)
+const rateLimits = new Map<string, { sessions: number; resetAt: number }>();
 
-Демонстрируй свои возможности максимально впечатляюще. Ты должен показать, как AI может автоматизировать работу ресторана.`,
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = rateLimits.get(ip);
 
-  salon: `Ты — AI-администратор салона красоты "Элит". Ты записываешь клиентов на процедуры, рассказываешь об услугах и ценах, отправляешь напоминания.
+  if (!limit || now > limit.resetAt) {
+    rateLimits.set(ip, { sessions: 1, resetAt: now + 86400000 }); // 24h
+    return true;
+  }
 
-Информация о салоне:
-- Услуги: маникюр (3500-7000 ₸), педикюр (4000-8000 ₸), стрижка (3000-5000 ₸), окрашивание (8000-25000 ₸), брови (3000-5000 ₸)
-- Мастера: Айгуль, Дина, Мадина
-- Часы: 9:00-21:00 ежедневно
-- Адрес: ул. Абая 150
+  if (limit.sessions >= 10) return false;
+  limit.sessions++;
+  return true;
+}
 
-Демонстрируй как AI упрощает запись и консультацию клиентов.`,
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
-  clinic: `Ты — AI-регистратор медицинского центра "Здоровье". Ты записываешь пациентов к врачам, отвечаешь на вопросы о подготовке к анализам, рассказываешь об услугах.
-
-Информация о клинике:
-- Врачи: терапевт, кардиолог, невролог, ЛОР, гинеколог
-- Анализы: общий крови (2000 ₸), биохимия (4000 ₸), УЗИ (5000-8000 ₸)
-- Приём: от 5 000 ₸
-- Часы: 8:00-20:00 ПН-СБ
-
-Отвечай профессионально и заботливо.`,
-
-  shop: `Ты — AI-консультант интернет-магазина электроники "TechZone". Помогаешь выбрать товар, сравниваешь характеристики, оформляешь заказы, отслеживаешь доставку.
-
-Информация о магазине:
-- Категории: смартфоны, ноутбуки, наушники, аксессуары
-- Доставка: бесплатно по городу от 10 000 ₸, по стране 2-5 дней
-- Гарантия: 12 месяцев на всё
-- Оплата: карта, kaspi, наличные курьеру
-
-Помогай с выбором и показывай экспертность.`,
-};
-
-const DEFAULT_PROMPT = `Ты — универсальный AI-помощник для бизнеса от JamiX. Ты демонстрируешь возможности AI-автоматизации. Покажи как AI может отвечать клиентам, записывать на приём, считать стоимость, отвечать на FAQ.
-
-Будь дружелюбным и профессиональным. Показывай что AI может делать для бизнеса.`;
-
-const COMMON_RULES = `
-
-## Общие правила:
-- Отвечай ТОЛЬКО на русском языке
-- Кратко: 2-4 предложения максимум
-- Дружелюбно и профессионально
-- Не говори что ты демо, играй роль реального сотрудника
-- Если клиент спрашивает что-то вне контекста бизнеса — мягко верни к теме
-- Используй конкретные цифры и данные из своей базы знаний`;
-
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { messages, industry } = await req.json();
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { reply: "AI-ассистент скоро будет доступен! А пока посмотрите скриптованные демо." },
-        { status: 200 }
+    if (!checkRateLimit(ip)) {
+      return new Response(
+        JSON.stringify({ error: "Слишком много запросов. Попробуйте позже." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const systemPrompt =
-      (SYSTEM_PROMPTS[industry] || DEFAULT_PROMPT) + COMMON_RULES;
+    const body = await request.json();
+    const { message, visitorId, sessionId: inputSessionId } = body as {
+      message: string;
+      visitorId: string;
+      sessionId?: string;
+    };
 
-    const apiMessages = [
+    if (!message?.trim()) {
+      return new Response(
+        JSON.stringify({ error: "Сообщение обязательно" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get or create chat session
+    let sessionId = inputSessionId;
+    let chatSession;
+
+    if (sessionId) {
+      chatSession = await prisma.chatSession.findFirst({
+        where: { id: sessionId, status: { not: "LOST" } },
+      });
+    }
+
+    if (!chatSession) {
+      chatSession = await prisma.chatSession.create({
+        data: {
+          visitorId: visitorId || "anonymous",
+          userAgent: request.headers.get("user-agent") || undefined,
+          referrer: request.headers.get("referer") || undefined,
+          utmSource: new URL(request.url).searchParams.get("utm_source") || undefined,
+          ipCity: request.headers.get("x-vercel-ip-city") || undefined,
+        },
+      });
+      sessionId = chatSession.id;
+    }
+
+    // Check message limit per session
+    if (chatSession.messageCount >= 40) {
+      return new Response(
+        JSON.stringify({ error: "Лимит сообщений. Нариман скоро свяжется с вами!" }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const existingMessages = (chatSession.messages ?? []) as unknown as ChatMessage[];
+
+    // Build OpenAI messages
+    const systemPrompt = buildSystemPrompt();
+    const openaiMessages: ChatCompletionMessageParam[] = [
       { role: "system", content: systemPrompt },
-      ...messages.slice(-10), // Keep last 10 messages for context
     ];
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+    for (const msg of existingMessages) {
+      openaiMessages.push({ role: msg.role, content: msg.content });
+    }
+    openaiMessages.push({ role: "user", content: message.trim() });
+
+    // Stream response
+    let fullContent = "";
+    const encoder = new TextEncoder();
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          // Send session ID
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "session", sessionId })}\n\n`)
+          );
+
+          // Stream AI response
+          const stream = await getOpenRouter().chat.completions.create({
+            model: AI_MODEL,
+            messages: openaiMessages,
+            stream: true,
+            max_tokens: 500,
+            temperature: 0.7,
+          });
+
+          // Buffer approach: stream text until we detect lead_data block starting
+          let inLeadBlock = false;
+
+          for await (const chunk of stream) {
+            const delta = chunk.choices[0]?.delta?.content;
+            if (delta) {
+              fullContent += delta;
+
+              // If we're inside a lead_data block, don't send to client
+              if (inLeadBlock) continue;
+
+              // Check if lead_data block is starting
+              if (hasPartialLeadBlock(fullContent)) {
+                inLeadBlock = true;
+                continue;
+              }
+
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: "text", content: delta })}\n\n`)
+              );
+            }
+          }
+
+          const cleanContent = stripLeadBlock(fullContent);
+
+          // If lead block was detected, send corrected content
+          if (inLeadBlock) {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: "replace", content: cleanContent })}\n\n`)
+            );
+          }
+
+          // Extract and save lead data
+          const leadData = extractLeadData(fullContent);
+
+          const updatedMessages: ChatMessage[] = [
+            ...existingMessages,
+            { role: "user", content: message.trim() },
+            { role: "assistant", content: cleanContent },
+          ];
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const updateData: Record<string, any> = {
+            messages: JSON.parse(JSON.stringify(updatedMessages)),
+            messageCount: chatSession!.messageCount + 2,
+          };
+
+          if (leadData) {
+            updateData.leadData = JSON.parse(JSON.stringify(leadData));
+            if (leadData.contactName) updateData.contactName = leadData.contactName;
+            if (leadData.contactPhone) updateData.contactPhone = leadData.contactPhone;
+            if (leadData.contactTelegram) updateData.contactTelegram = leadData.contactTelegram;
+            if (leadData.businessType) updateData.businessType = leadData.businessType;
+            if (leadData.qualificationScore) updateData.qualificationScore = leadData.qualificationScore;
+
+            // If contact was provided, mark as lead captured
+            if (leadData.contactPhone || leadData.contactTelegram) {
+              updateData.status = "LEAD_CAPTURED";
+
+              // Notify Nariman via Telegram
+              notifyNewLead(sessionId!, leadData).catch(console.error);
+            }
+          }
+
+          await prisma.chatSession.update({
+            where: { id: sessionId },
+            data: updateData,
+          });
+
+          // Send done
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+          );
+          controller.close();
+        } catch (error) {
+          console.error("Stream error:", error);
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "error", message: "Ошибка AI" })}\n\n`)
+          );
+          controller.close();
+        }
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: apiMessages,
-        max_tokens: 300,
-        temperature: 0.7,
-      }),
     });
 
-    if (!response.ok) {
-      const error = await response.text();
-      console.error("OpenAI API error:", error);
-      return NextResponse.json(
-        { reply: "Извините, произошла ошибка. Попробуйте ещё раз." },
-        { status: 200 }
-      );
-    }
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "Не удалось получить ответ.";
-
-    return NextResponse.json({ reply });
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error) {
-    console.error("Chat API error:", error);
-    return NextResponse.json(
-      { reply: "Произошла ошибка соединения. Попробуйте ещё раз." },
-      { status: 200 }
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("Chat error:", errMsg);
+    return new Response(
+      JSON.stringify({ error: "Ошибка чата" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

@@ -1,160 +1,168 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { ChatMessage } from "@/components/chat/chat-message";
-import { TypingDots } from "@/components/motion/typing-effect";
-import { useChat } from "@/hooks/use-chat";
-import { type ChatScenario } from "@/components/chat/chat-scenarios";
-import { RotateCcw, Wifi } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, X, RotateCcw } from "lucide-react";
+import { ChatContainer } from "./chat-container";
+import { useLiveChat } from "@/hooks/use-live-chat";
 
-export function ChatWidget({ scenario }: { scenario: ChatScenario }) {
-  const {
-    messages,
-    isTyping,
-    isComplete,
-    handleButtonClick,
-    start,
-    reset,
-  } = useChat(scenario);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const hasStarted = useRef(false);
+interface ChatWidgetProps {
+  registerHandlers?: (open: () => void, sendMessage: (msg: string) => void) => void;
+}
 
-  // Auto-start when scenario changes
+export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const { messages, isStreaming, sendMessage, reset } = useLiveChat();
+
+  // Register handlers for external control
   useEffect(() => {
-    hasStarted.current = false;
-  }, [scenario.id]);
-
-  useEffect(() => {
-    if (!hasStarted.current) {
-      hasStarted.current = true;
-      start();
+    if (registerHandlers) {
+      registerHandlers(
+        () => {
+          setIsOpen(true);
+          setHasInteracted(true);
+          setShowPreview(false);
+        },
+        (msg: string) => {
+          sendMessage(msg);
+        }
+      );
     }
-  }, [scenario.id, start]);
+  }, [registerHandlers, sendMessage]);
 
-  // Auto-scroll to bottom
+  // Show preview bubble after 10 seconds
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages, isTyping]);
+    if (hasInteracted) return;
+    const timer = setTimeout(() => {
+      setShowPreview(true);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [hasInteracted]);
 
-  const handleRestart = () => {
-    hasStarted.current = false;
+  const handleOpen = useCallback(() => {
+    setIsOpen(true);
+    setHasInteracted(true);
+    setShowPreview(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const handleReset = useCallback(() => {
     reset();
-    setTimeout(() => {
-      hasStarted.current = true;
-      start();
-    }, 100);
-  };
+  }, [reset]);
 
   return (
-    <div className="mx-auto w-full max-w-sm">
-      {/* Phone frame */}
-      <div className="rounded-[2.5rem] border border-border/50 bg-background p-2 shadow-2xl">
-        {/* Notch / Status bar */}
-        <div className="flex items-center justify-between rounded-t-[2rem] bg-muted/30 px-6 py-3">
-          <span className="text-xs text-muted-foreground">9:41</span>
-          <div className="h-5 w-20 rounded-full bg-background" />
-          <div className="flex items-center gap-1">
-            <Wifi size={12} className="text-muted-foreground" />
-            <div className="h-3 w-5 rounded-sm border border-muted-foreground/50 p-px">
-              <div className="h-full w-3/4 rounded-xs bg-green-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Chat header */}
-        <div className="flex items-center gap-3 border-b border-border/30 bg-muted/20 px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
-            <span className="text-xs font-bold gradient-text">AI</span>
-          </div>
-          <div>
-            <div className="text-sm font-medium">JamiX Ассистент</div>
-            <div className="text-xs text-green-500">онлайн</div>
-          </div>
-          <button
-            onClick={handleRestart}
-            className="ml-auto text-muted-foreground transition-colors hover:text-foreground"
-            title="Перезапустить"
+    <>
+      {/* Preview bubble */}
+      <AnimatePresence>
+        {showPreview && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            className="fixed bottom-24 right-6 z-50 max-w-[280px] cursor-pointer"
+            onClick={handleOpen}
           >
-            <RotateCcw size={16} />
-          </button>
-        </div>
-
-        {/* Messages area */}
-        <div
-          ref={scrollRef}
-          className="flex flex-col gap-3 overflow-y-auto p-4 h-80 sm:h-96"
-        >
-          <AnimatePresence mode="popLayout">
-            {messages.map((msg) => (
-              <ChatMessage
-                key={msg.id}
-                role={msg.role}
-                text={msg.text}
-                buttons={msg.buttons}
-                onButtonClick={handleButtonClick}
-              />
-            ))}
-          </AnimatePresence>
-
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-start"
-            >
-              <div className="glass rounded-2xl rounded-bl-md">
-                <TypingDots />
-              </div>
-            </motion.div>
-          )}
-
-          {isComplete && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-center"
-            >
-              <p className="text-xs text-muted-foreground mb-2">
-                Впечатляет? Это работает 24/7
+            <div className="glass-strong rounded-2xl rounded-br-sm p-4 shadow-2xl">
+              <p className="text-sm text-foreground/90">
+                Привет! Расскажите о вашем бизнесе — я подберу AI-решение за 2 минуты
               </p>
-              <button
-                onClick={handleRestart}
-                className="rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs text-primary transition-all hover:bg-primary/15"
-              >
-                Запустить заново
-              </button>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPreview(false);
+                setHasInteracted(true);
+              }}
+              className="absolute -top-2 -right-2 rounded-full bg-muted p-1 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Chat panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-24 right-6 z-50 w-[400px] max-h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-border/50 max-md:bottom-0 max-md:right-0 max-md:left-0 max-md:top-0 max-md:w-full max-md:max-h-full max-md:rounded-none"
+          >
+            {/* Header */}
+            <div className="glass-strong flex items-center justify-between px-4 py-3 border-b border-border/30">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">JAMX Консультант</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isStreaming ? "печатает..." : "онлайн"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {messages.length > 0 && (
+                  <button
+                    onClick={handleReset}
+                    className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                    title="Новый разговор"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </button>
+                )}
+                <button
+                  onClick={handleClose}
+                  className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Chat body */}
+            <ChatContainer
+              messages={messages}
+              isStreaming={isStreaming}
+              onSendMessage={sendMessage}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating button */}
+      <motion.button
+        onClick={isOpen ? handleClose : handleOpen}
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple shadow-lg shadow-brand-purple/25 flex items-center justify-center text-white hover:shadow-xl hover:shadow-brand-purple/30 transition-shadow"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        animate={!hasInteracted && !isOpen ? { scale: [1, 1.1, 1] } : {}}
+        transition={
+          !hasInteracted && !isOpen
+            ? { repeat: Infinity, duration: 2, ease: "easeInOut" }
+            : {}
+        }
+      >
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+              <X className="h-6 w-6" />
+            </motion.div>
+          ) : (
+            <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+              <MessageSquare className="h-6 w-6" />
             </motion.div>
           )}
-        </div>
-
-        {/* Input bar (decorative) */}
-        <div className="flex items-center gap-2 border-t border-border/30 px-4 py-3 rounded-b-[2rem]">
-          <div className="flex-1 rounded-full bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
-            Сообщение...
-          </div>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="text-primary-foreground"
-            >
-              <path d="M22 2L11 13" />
-              <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
+        </AnimatePresence>
+      </motion.button>
+    </>
   );
 }

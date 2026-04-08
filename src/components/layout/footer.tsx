@@ -1,90 +1,82 @@
-import { SITE, NAV_LINKS } from "@/lib/constants";
-import { Send, MessageCircle, Phone } from "lucide-react";
+import { SITE } from "@/lib/constants";
+import { Send, MessageCircle, Instagram, Phone, Clock, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/50 bg-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-border/30 py-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <span className="gradient-text text-xl font-bold">JamiX</span>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              AI-автоматизация бизнеса. Создаём нейро-сотрудников которые
-              продают, консультируют и записывают клиентов 24/7.
-            </p>
-          </div>
-
-          {/* Navigation */}
           <div>
-            <h4 className="mb-3 text-sm font-semibold">Навигация</h4>
-            <nav className="flex flex-col gap-2">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
+            <span className="text-lg font-bold gradient-text">JamiX</span>
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+              AI-решения для бизнеса в Казахстане.
+              Боты, CRM, автоматизация — под ключ.
+            </p>
           </div>
 
           {/* Contacts */}
           <div>
-            <h4 className="mb-3 text-sm font-semibold">Контакты</h4>
-            <div className="flex flex-col gap-2">
-              <a
-                href={SITE.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
+            <h4 className="text-sm font-semibold mb-3">Контакты</h4>
+            <div className="space-y-2">
+              <a href="tel:+77758899739" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
                 <Phone size={14} />
-                WhatsApp
+                +7 775 889 9739
               </a>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock size={14} />
+                Пн-Сб, 9:00-19:00
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MapPin size={14} />
+                Астана, Казахстан
+              </div>
+            </div>
+          </div>
+
+          {/* Social */}
+          <div>
+            <h4 className="text-sm font-semibold mb-3">Мы в сети</h4>
+            <div className="flex items-center gap-3">
               <a
                 href={SITE.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="h-10 w-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors glow-hover"
+                title="Telegram"
               >
-                <Send size={14} />
-                Telegram
+                <Send size={16} />
+              </a>
+              <a
+                href={SITE.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-10 w-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors glow-hover"
+                title="WhatsApp"
+              >
+                <MessageCircle size={16} />
               </a>
               <a
                 href={SITE.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="h-10 w-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors glow-hover"
+                title="Instagram"
               >
-                <MessageCircle size={14} />
-                Instagram
+                <Instagram size={16} />
               </a>
             </div>
-          </div>
-
-          {/* CTA mini */}
-          <div>
-            <h4 className="mb-3 text-sm font-semibold">Попробуйте</h4>
-            <p className="text-sm text-muted-foreground mb-3">
-              Бесплатная демо-версия AI-сотрудника в Telegram
-            </p>
             <a
-              href={SITE.telegramBot}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              href={`mailto:${SITE.email}`}
+              className="block mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Send size={14} />
-              Запустить демо
+              {SITE.email}
             </a>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} JamiX. Все права защищены.
+        <div className="border-t border-border/20 pt-6 text-center text-xs text-muted-foreground">
+          &copy; {new Date().getFullYear()} JamiX. Астана, Казахстан. Все права защищены.
         </div>
       </div>
     </footer>
