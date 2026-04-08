@@ -12,15 +12,14 @@ interface ChatContainerProps {
   onSendMessage: (text: string) => void;
 }
 
-const GREETING = "Здравствуйте! Я — консультант JAMX. Расскажите, чем занимается ваш бизнес, и я подскажу, как AI и автоматизация могут вам помочь.";
+const GREETING = "Привет! Я консультант JAMX. Расскажите немного о себе — чем занимаетесь? Я помогу разобраться, что в вашем бизнесе можно автоматизировать и где AI реально сэкономит время.";
 
 const QUICK_REPLY_OPTIONS = [
-  "Ресторан / кафе",
-  "Салон красоты",
-  "Клиника",
-  "Интернет-магазин",
-  "Услуги / ремонт",
-  "Другое",
+  "Клиенты пишут, не успеваю отвечать",
+  "Много рутины, всё вручную",
+  "Хочу бота для клиентов",
+  "Теряются заявки и лиды",
+  "Просто интересуюсь, что вы делаете",
 ];
 
 export function ChatContainer({ messages, isStreaming, onSendMessage }: ChatContainerProps) {
@@ -43,7 +42,7 @@ export function ChatContainer({ messages, isStreaming, onSendMessage }: ChatCont
   };
 
   const handleQuickReply = (text: string) => {
-    onSendMessage(`У меня ${text.toLowerCase()}`);
+    onSendMessage(text);
   };
 
   const showGreeting = messages.length === 0;

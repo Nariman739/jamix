@@ -69,7 +69,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
           >
             <div className="glass-strong rounded-2xl rounded-br-sm p-4 shadow-2xl">
               <p className="text-sm text-foreground/90">
-                Привет! Расскажите о вашем бизнесе — я подберу AI-решение за 2 минуты
+                Привет! Расскажите, что отнимает больше всего времени в вашем бизнесе — может, это можно автоматизировать
               </p>
             </div>
             <button
