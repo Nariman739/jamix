@@ -46,31 +46,10 @@ export function useLiveChat(): UseLiveChatReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Restore session from localStorage
+  // Clear any old cached sessions on mount (fresh start each visit)
   useEffect(() => {
-    const saved = localStorage.getItem("jamix_session");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.sessionId && data.messages?.length) {
-          setSessionId(data.sessionId);
-          setMessages(data.messages);
-        }
-      } catch {
-        // ignore
-      }
-    }
+    localStorage.removeItem("jamix_session");
   }, []);
-
-  // Save session to localStorage
-  useEffect(() => {
-    if (sessionId && messages.length > 0) {
-      localStorage.setItem(
-        "jamix_session",
-        JSON.stringify({ sessionId, messages })
-      );
-    }
-  }, [sessionId, messages]);
 
   const sendMessage = useCallback(
     async (text: string) => {

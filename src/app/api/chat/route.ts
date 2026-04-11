@@ -78,9 +78,9 @@ export async function POST(request: Request) {
     }
 
     // Check message limit per session
-    if (chatSession.messageCount >= 40) {
+    if (chatSession.messageCount >= 20) {
       return new Response(
-        JSON.stringify({ error: "Лимит сообщений. Нариман скоро свяжется с вами!" }),
+        JSON.stringify({ error: "Хотите продолжить? Напишите Нариману в Telegram: @nariman_jaminov" }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
             model: AI_MODEL,
             messages: openaiMessages,
             stream: true,
-            max_tokens: 500,
+            max_tokens: 300,
             temperature: 0.7,
           });
 
