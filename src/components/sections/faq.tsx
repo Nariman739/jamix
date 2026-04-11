@@ -37,7 +37,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-export function FAQSection({ onOpenChat }: { onOpenChat?: () => void } = {}) {
+export function FAQSection({ onOpenChat }: { onOpenChat?: () => void }) {
   return (
     <section id="faq" className="py-24 relative">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -57,19 +57,17 @@ export function FAQSection({ onOpenChat }: { onOpenChat?: () => void } = {}) {
           ))}
         </div>
 
-        {onOpenChat && (
-          <FadeIn delay={0.4}>
-            <div className="mt-10 text-center">
-              <p className="text-sm text-muted-foreground mb-4">Не нашли ответ?</p>
-              <button
-                onClick={onOpenChat}
-                className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-6 py-2.5 text-sm text-brand-blue hover:bg-brand-blue/20 transition-colors"
-              >
-                Спросить у консультанта
-              </button>
-            </div>
-          </FadeIn>
-        )}
+        <FadeIn delay={0.4}>
+          <div className="mt-10 text-center">
+            <p className="text-sm text-muted-foreground mb-4">Остались вопросы?</p>
+            <button
+              onClick={onOpenChat}
+              className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-6 py-2.5 text-sm text-brand-blue hover:bg-brand-blue/20 transition-colors"
+            >
+              Спросить AI-продавца
+            </button>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

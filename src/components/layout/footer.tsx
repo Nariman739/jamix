@@ -10,8 +10,8 @@ export function Footer() {
           <div>
             <span className="text-lg font-bold gradient-text">JamiX</span>
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-              AI-решения для бизнеса в Казахстане.
-              Боты, CRM, автоматизация — под ключ.
+              AI-продавцы для бизнеса в Казахстане.
+              Отвечают клиентам 24/7, закрывают заявки, увеличивают продажи.
             </p>
           </div>
 

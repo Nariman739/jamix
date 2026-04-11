@@ -1,28 +1,10 @@
 "use client";
 
 import { FadeIn } from "@/components/motion/fade-in";
-import { MessageSquare, Lightbulb, Rocket } from "lucide-react";
+import { HOW_IT_WORKS } from "@/lib/constants";
+import { MessageSquare, Settings, Rocket } from "lucide-react";
 
-const steps = [
-  {
-    icon: MessageSquare,
-    number: "01",
-    title: "Расскажите о задаче",
-    description: "Опишите ваш бизнес и что хотите автоматизировать. Прямо здесь, в чате на сайте.",
-  },
-  {
-    icon: Lightbulb,
-    number: "02",
-    title: "Получите решение",
-    description: "AI-консультант подберёт оптимальное решение. Нариман свяжется и обсудит детали.",
-  },
-  {
-    icon: Rocket,
-    number: "03",
-    title: "Запуск за дни",
-    description: "Разработаем, настроим, протестируем и запустим. С поддержкой и обучением.",
-  },
-];
+const icons = [MessageSquare, Settings, Rocket];
 
 export function HowItWorksSection() {
   return (
@@ -34,26 +16,31 @@ export function HowItWorksSection() {
               Как это <span className="gradient-text">работает</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
-              От идеи до запуска — 3 простых шага
+              От заявки до запуска — 3 простых шага
             </p>
           </div>
         </FadeIn>
 
         <div className="grid gap-8 md:grid-cols-3">
-          {steps.map((step, i) => (
-            <FadeIn key={step.number} delay={0.1 + i * 0.15}>
-              <div className="relative glass rounded-2xl p-8 text-center glow-hover">
-                <div className="text-5xl font-black text-brand-purple/10 absolute top-4 right-6">
-                  {step.number}
+          {HOW_IT_WORKS.map((step, i) => {
+            const Icon = icons[i];
+            return (
+              <FadeIn key={step.step} delay={0.1 + i * 0.15}>
+                <div className="relative glass rounded-2xl p-8 text-center glow-hover">
+                  <div className="text-5xl font-black text-brand-purple/10 absolute top-4 right-6">
+                    {step.step}
+                  </div>
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center mx-auto mb-5">
+                    <Icon size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-3">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center mx-auto mb-5">
-                  <step.icon size={24} className="text-white" />
-                </div>
-                <h3 className="text-lg font-semibold mb-3">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-              </div>
-            </FadeIn>
-          ))}
+              </FadeIn>
+            );
+          })}
         </div>
       </div>
     </section>

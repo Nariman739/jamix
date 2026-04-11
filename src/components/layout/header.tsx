@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { NAV_LINKS, SITE } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
 import { Menu, X } from "lucide-react";
 
 export function Header({ onOpenChat }: { onOpenChat?: () => void }) {
@@ -44,7 +44,7 @@ export function Header({ onOpenChat }: { onOpenChat?: () => void }) {
             className="rounded-full px-6"
             onClick={onOpenChat}
           >
-            Получить консультацию
+            Получить демо
           </Button>
         </div>
 
@@ -78,7 +78,7 @@ export function Header({ onOpenChat }: { onOpenChat?: () => void }) {
                 onOpenChat?.();
               }}
             >
-              Получить консультацию
+              Получить демо
             </Button>
           </nav>
         </div>

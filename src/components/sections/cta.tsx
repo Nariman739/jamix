@@ -2,7 +2,8 @@
 
 import { FadeIn } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { SITE } from "@/lib/constants";
+import { ArrowRight, Send } from "lucide-react";
 
 export function CTASection({ onOpenChat }: { onOpenChat?: () => void }) {
   return (
@@ -11,19 +12,32 @@ export function CTASection({ onOpenChat }: { onOpenChat?: () => void }) {
         <FadeIn>
           <div className="gradient-border glass rounded-3xl p-10 sm:p-16 text-center">
             <h2 className="text-3xl font-bold sm:text-4xl mb-4">
-              Готовы <span className="gradient-text">автоматизировать</span>?
+              Получите <span className="gradient-text">бесплатный разбор</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-              Расскажите о вашем бизнесе прямо сейчас — AI-консультант подберёт решение за 2 минуты. Это бесплатно.
+              Расскажите про ваш бизнес — покажем, как AI-продавец увеличит ваши продажи. Это бесплатно и ни к чему не обязывает.
             </p>
-            <Button
-              size="lg"
-              className="group rounded-full px-8 text-base gap-2"
-              onClick={onOpenChat}
-            >
-              Начать разговор
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Button
+                size="lg"
+                className="group rounded-full px-8 text-base gap-2"
+                onClick={onOpenChat}
+              >
+                Попробовать AI-продавца
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-full px-8 text-base gap-2"
+                asChild
+              >
+                <a href={SITE.telegramBot} target="_blank" rel="noopener noreferrer">
+                  <Send size={18} />
+                  Написать в Telegram
+                </a>
+              </Button>
+            </div>
           </div>
         </FadeIn>
       </div>

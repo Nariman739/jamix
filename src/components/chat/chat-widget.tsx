@@ -37,7 +37,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
     if (hasInteracted) return;
     const timer = setTimeout(() => {
       setShowPreview(true);
-    }, 10000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [hasInteracted]);
 
@@ -69,7 +69,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
           >
             <div className="glass-strong rounded-2xl rounded-br-sm p-4 shadow-2xl">
               <p className="text-sm text-foreground/90">
-                Привет! Расскажите, что отнимает больше всего времени в вашем бизнесе — может, это можно автоматизировать
+                Привет! Я — AI-продавец. Расскажите про ваш бизнес — покажу, как я могу работать для вас
               </p>
             </div>
             <button
@@ -103,7 +103,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
                   <MessageSquare className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">JAMX Консультант</p>
+                  <p className="text-sm font-semibold">JAMX AI-продавец</p>
                   <p className="text-xs text-muted-foreground">
                     {isStreaming ? "печатает..." : "онлайн"}
                   </p>
