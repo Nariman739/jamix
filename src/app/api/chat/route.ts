@@ -115,7 +115,7 @@ export async function POST(request: Request) {
             model: AI_MODEL,
             messages: openaiMessages,
             stream: true,
-            max_tokens: 300,
+            max_tokens: 500,
             temperature: 0.7,
           });
 
