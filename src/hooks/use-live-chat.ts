@@ -30,6 +30,17 @@ function cleanLeadData(content: string): string {
   return cleaned;
 }
 
+function getUtmParams(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(window.location.search);
+  const utm: Record<string, string> = {};
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
+    const val = params.get(key);
+    if (val) utm[key] = val;
+  }
+  return utm;
+}
+
 function getVisitorId(): string {
   if (typeof window === "undefined") return "ssr";
   let id = localStorage.getItem("jamix_visitor_id");
@@ -84,6 +95,7 @@ export function useLiveChat(): UseLiveChatReturn {
             message: text.trim(),
             visitorId: getVisitorId(),
             sessionId,
+            ...getUtmParams(),
           }),
           signal: abortRef.current.signal,
         });

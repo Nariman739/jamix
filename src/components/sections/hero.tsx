@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { DEMO_CHAT, RESULTS, SITE } from "@/lib/constants";
 import { ArrowRight, Send } from "lucide-react";
 import { motion } from "framer-motion";
+import { trackContact } from "@/lib/meta-pixel";
 
 function ChatPreview() {
   const [visibleCount, setVisibleCount] = useState(0);
@@ -108,7 +109,7 @@ export function HeroSection({ onOpenChat }: { onOpenChat?: () => void }) {
                   className="rounded-full px-8 text-base gap-2"
                   asChild
                 >
-                  <a href={SITE.telegramBot} target="_blank" rel="noopener noreferrer">
+                  <a href={SITE.telegramBot} target="_blank" rel="noopener noreferrer" onClick={trackContact}>
                     <Send size={18} />
                     Написать в Telegram
                   </a>

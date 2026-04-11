@@ -6,6 +6,7 @@ import { DEMO_CHAT, SITE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
+import { trackContact } from "@/lib/meta-pixel";
 
 function DemoChat() {
   const [visibleCount, setVisibleCount] = useState(0);
@@ -122,7 +123,7 @@ export function DemoSection({ onOpenChat }: { onOpenChat?: () => void }) {
                 className="rounded-full px-8 gap-2"
                 asChild
               >
-                <a href={SITE.telegramBot} target="_blank" rel="noopener noreferrer">
+                <a href={SITE.telegramBot} target="_blank" rel="noopener noreferrer" onClick={trackContact}>
                   <Send size={18} />
                   Написать в Telegram
                 </a>

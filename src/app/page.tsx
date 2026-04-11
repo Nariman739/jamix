@@ -9,10 +9,12 @@ import { HowItWorksSection } from "@/components/sections/how-it-works";
 import { DemoSection } from "@/components/sections/demo";
 import { NichesSection } from "@/components/sections/niches";
 import { ResultsSection } from "@/components/sections/results";
+import { SocialProofSection } from "@/components/sections/social-proof";
 import { FAQSection } from "@/components/sections/faq";
 import { CTASection } from "@/components/sections/cta";
 import { Footer } from "@/components/layout/footer";
 import { ChatWidget } from "@/components/chat/chat-widget";
+import { trackLead } from "@/lib/meta-pixel";
 
 export default function HomePage() {
   const chatOpenRef = useRef<(() => void) | null>(null);
@@ -26,6 +28,7 @@ export default function HomePage() {
 
   const handleOpenChat = useCallback(() => {
     chatOpenRef.current?.();
+    trackLead();
   }, []);
 
   return (
@@ -39,6 +42,7 @@ export default function HomePage() {
         <DemoSection onOpenChat={handleOpenChat} />
         <NichesSection />
         <ResultsSection />
+        <SocialProofSection />
         <FAQSection onOpenChat={handleOpenChat} />
         <CTASection onOpenChat={handleOpenChat} />
       </main>

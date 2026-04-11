@@ -41,10 +41,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { message, visitorId, sessionId: inputSessionId } = body as {
+    const { message, visitorId, sessionId: inputSessionId, utm_source, utm_medium, utm_campaign, utm_content } = body as {
       message: string;
       visitorId: string;
       sessionId?: string;
+      utm_source?: string;
+      utm_medium?: string;
+      utm_campaign?: string;
+      utm_content?: string;
     };
 
     if (!message?.trim()) {
@@ -70,7 +74,9 @@ export async function POST(request: Request) {
           visitorId: visitorId || "anonymous",
           userAgent: request.headers.get("user-agent") || undefined,
           referrer: request.headers.get("referer") || undefined,
-          utmSource: new URL(request.url).searchParams.get("utm_source") || undefined,
+          utmSource: utm_source || undefined,
+          utmMedium: utm_medium || undefined,
+          utmCampaign: utm_campaign || undefined,
           ipCity: request.headers.get("x-vercel-ip-city") || undefined,
         },
       });
