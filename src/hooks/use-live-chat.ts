@@ -17,6 +17,19 @@ interface UseLiveChatReturn {
   reset: () => void;
 }
 
+// Strip lead_data blocks that may leak through streaming
+function cleanLeadData(content: string): string {
+  // Strip ```lead_data ... ``` blocks
+  let cleaned = content.replace(/```\s*lead_data\s*\n[\s\S]*?\n\s*```/g, "").trim();
+  // Strip raw JSON blocks that look like lead data (fallback)
+  cleaned = cleaned.replace(/\{\s*"businessType"[\s\S]*?"recommendedServices"[\s\S]*?\}/g, "").trim();
+  // Strip partial lead_data blocks (incomplete streaming)
+  cleaned = cleaned.replace(/```\s*lead_data[\s\S]*$/g, "").trim();
+  // Strip standalone JSON that starts with "businessType"
+  cleaned = cleaned.replace(/"businessType"\s*:[\s\S]*$/g, "").trim();
+  return cleaned;
+}
+
 function getVisitorId(): string {
   if (typeof window === "undefined") return "ssr";
   let id = localStorage.getItem("jamix_visitor_id");
@@ -148,7 +161,7 @@ export function useLiveChat(): UseLiveChatReturn {
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
-                        ? { ...m, content: event.content }
+                        ? { ...m, content: cleanLeadData(event.content) }
                         : m
                     )
                   );
@@ -165,6 +178,14 @@ export function useLiveChat(): UseLiveChatReturn {
                   break;
 
                 case "done":
+                  // Final cleanup of any leaked lead_data
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId
+                        ? { ...m, content: cleanLeadData(m.content) }
+                        : m
+                    )
+                  );
                   break;
               }
             } catch {

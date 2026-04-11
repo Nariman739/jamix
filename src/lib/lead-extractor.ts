@@ -28,9 +28,24 @@ export function extractLeadData(content: string): LeadData | null {
 }
 
 export function stripLeadBlock(content: string): string {
-  return content.replace(/```\s*lead_data\s*\n[\s\S]*?\n\s*```/g, "").trim();
+  // Strip ```lead_data ... ``` blocks
+  let cleaned = content.replace(/```\s*lead_data\s*\n[\s\S]*?\n\s*```/g, "").trim();
+  // Strip raw JSON lead data blocks (without backticks)
+  cleaned = cleaned.replace(/\{\s*"businessType"[\s\S]*?"recommendedServices"[\s\S]*?\}/g, "").trim();
+  // Strip partial/incomplete lead blocks
+  cleaned = cleaned.replace(/```\s*lead_data[\s\S]*$/g, "").trim();
+  cleaned = cleaned.replace(/\{\s*"businessType"[\s\S]*$/g, "").trim();
+  return cleaned;
 }
 
 export function hasPartialLeadBlock(content: string): boolean {
-  return /```\s*lead_data/.test(content) && !/```\s*lead_data\s*\n[\s\S]*?\n\s*```/.test(content);
+  // Detect lead_data block starting (with backticks)
+  if (/```\s*lead_data/.test(content) && !/```\s*lead_data\s*\n[\s\S]*?\n\s*```/.test(content)) {
+    return true;
+  }
+  // Detect raw JSON lead data (without backticks) — AI sometimes omits them
+  if (/\{\s*"businessType"/.test(content) && !/\}\s*$/.test(content.trim())) {
+    return true;
+  }
+  return false;
 }
