@@ -40,7 +40,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="dark">
-      <head>
+      <body className={`${geistSans.variable} font-sans antialiased`}>
+        {children}
         {PIXEL_ID && (
           <Script id="meta-pixel" strategy="afterInteractive">
             {`
@@ -57,9 +58,6 @@ export default function RootLayout({
             `}
           </Script>
         )}
-      </head>
-      <body className={`${geistSans.variable} font-sans antialiased`}>
-        {children}
       </body>
     </html>
   );
