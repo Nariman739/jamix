@@ -13,10 +13,10 @@ export function CTASection({ onOpenChat }: { onOpenChat?: () => void }) {
         <FadeIn>
           <div className="gradient-border glass rounded-3xl p-10 sm:p-16 text-center">
             <h2 className="text-3xl font-bold sm:text-4xl mb-4">
-              Получите <span className="gradient-text">бесплатный разбор</span>
+              Расскажите о <span className="gradient-text">задаче</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-              Расскажите про ваш бизнес — покажем, как AI-продавец увеличит ваши продажи. Это бесплатно и ни к чему не обязывает.
+              Бот, CRM, ассистент или автоматизация — подберём то, что решит вашу задачу. Разбор бесплатный.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button
@@ -24,7 +24,7 @@ export function CTASection({ onOpenChat }: { onOpenChat?: () => void }) {
                 className="group rounded-full px-8 text-base gap-2"
                 onClick={onOpenChat}
               >
-                Попробовать AI-продавца
+                Подобрать решение
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button

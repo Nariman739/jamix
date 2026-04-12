@@ -14,7 +14,7 @@ export function SocialProofSection() {
               Уже <span className="gradient-text">работает</span> у клиентов
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Реальные бизнесы, которые используют AI-продавца
+              Реальные бизнесы, которые используют AI-решения JamiX
             </p>
           </div>
         </FadeIn>

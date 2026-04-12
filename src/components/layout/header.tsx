@@ -44,7 +44,7 @@ export function Header({ onOpenChat }: { onOpenChat?: () => void }) {
             className="rounded-full px-6"
             onClick={onOpenChat}
           >
-            Получить демо
+            Подобрать решение
           </Button>
         </div>
 
@@ -78,7 +78,7 @@ export function Header({ onOpenChat }: { onOpenChat?: () => void }) {
                 onOpenChat?.();
               }}
             >
-              Получить демо
+              Подобрать решение
             </Button>
           </nav>
         </div>

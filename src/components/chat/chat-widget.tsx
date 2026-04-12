@@ -69,7 +69,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
           >
             <div className="glass-strong rounded-2xl rounded-br-sm p-4 shadow-2xl">
               <p className="text-sm text-foreground/90">
-                Привет! Я — AI-продавец. Расскажите про ваш бизнес — покажу, как я могу работать для вас
+                Привет! Расскажите, что хотите улучшить в бизнесе — подберу AI-решение
               </p>
             </div>
             <button
@@ -103,7 +103,7 @@ export function ChatWidget({ registerHandlers }: ChatWidgetProps) {
                   <MessageSquare className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">JAMX AI-продавец</p>
+                  <p className="text-sm font-semibold">JamiX помощник</p>
                   <p className="text-xs text-muted-foreground">
                     {isStreaming ? "печатает..." : "онлайн"}
                   </p>

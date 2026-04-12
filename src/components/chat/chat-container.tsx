@@ -12,14 +12,14 @@ interface ChatContainerProps {
   onSendMessage: (text: string) => void;
 }
 
-const GREETING = "Привет! Я — AI-продавец от JamiX. Покажу прямо сейчас, как я могу работать для вашего бизнеса. В какой вы нише?";
+const GREETING = "Привет! Я — AI-помощник JamiX. Расскажите, что за бизнес и что хотите улучшить — подберу решение.";
 
 const QUICK_REPLY_OPTIONS = [
-  "Натяжные потолки",
-  "Салон красоты",
-  "Клиника / медцентр",
-  "Интернет-магазин",
-  "Другая ниша",
+  "Нужен бот для продаж",
+  "Нужна CRM без подписок",
+  "Хочу AI-ассистента",
+  "Автоматизировать процессы",
+  "Другое",
 ];
 
 export function ChatContainer({ messages, isStreaming, onSendMessage }: ChatContainerProps) {

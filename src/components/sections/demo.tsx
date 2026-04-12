@@ -92,10 +92,10 @@ export function DemoSection({ onOpenChat }: { onOpenChat?: () => void }) {
         <FadeIn>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold sm:text-4xl">
-              Вот как <span className="gradient-text">AI-продавец</span> общается с клиентом
+              Пример: <span className="gradient-text">AI-продавец</span> в действии
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Реальный пример: клиент спрашивает про натяжной потолок
+              Один из вариантов — бот для натяжных потолков
             </p>
           </div>
         </FadeIn>
@@ -115,7 +115,7 @@ export function DemoSection({ onOpenChat }: { onOpenChat?: () => void }) {
                 className="rounded-full px-8 gap-2"
                 onClick={onOpenChat}
               >
-                Попробовать AI-продавца
+                Подобрать решение
               </Button>
               <Button
                 size="lg"

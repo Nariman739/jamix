@@ -3,43 +3,79 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/motion/fade-in";
-import { DEMO_CHAT, RESULTS, SITE } from "@/lib/constants";
+import { RESULTS, SITE } from "@/lib/constants";
 import { ArrowRight, Send } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { trackContact } from "@/lib/meta-pixel";
+
+const chatPreview = [
+  { role: "user", text: "У меня салон красоты, клиенты забывают про запись" },
+  { role: "bot", text: "Знакомая проблема! AI-бот может автоматически записывать и напоминать за 2 часа. А ещё — вести мини-CRM без подписок. Что интереснее?" },
+  { role: "user", text: "И то и то! Сколько стоит?" },
+  { role: "bot", text: "Бот от 200К, CRM от 250К — разово, без абонентки. Написать Нариману? Он сделает разбор бесплатно 👉" },
+];
+
+const rotatingWords = ["бизнеса", "салона", "клиники", "магазина", "компании"];
+
+function RotatingText() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className="inline-block relative h-[1.15em] overflow-hidden align-bottom">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={rotatingWords[index]}
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -40, opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="gradient-text inline-block"
+        >
+          {rotatingWords[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
 
 function ChatPreview() {
   const [visibleCount, setVisibleCount] = useState(0);
-  const messages = DEMO_CHAT.slice(0, 4);
 
   useEffect(() => {
-    if (visibleCount >= messages.length) return;
+    if (visibleCount >= chatPreview.length) return;
     const timer = setTimeout(
       () => setVisibleCount((prev) => prev + 1),
       visibleCount === 0 ? 1000 : 1500
     );
     return () => clearTimeout(timer);
-  }, [visibleCount, messages.length]);
+  }, [visibleCount]);
 
   return (
     <div className="glass rounded-2xl p-4 w-full max-w-[360px] space-y-3">
       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/30">
         <div className="h-7 w-7 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center">
-          <span className="text-white text-[10px] font-bold">AI</span>
+          <span className="text-white text-[10px] font-bold">JX</span>
         </div>
-        <span className="text-xs font-medium">AI-продавец</span>
+        <span className="text-xs font-medium">JamiX помощник</span>
         <span className="ml-auto h-2 w-2 rounded-full bg-green-500" />
       </div>
-      {messages.slice(0, visibleCount).map((msg, i) => (
+      {chatPreview.slice(0, visibleCount).map((msg, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`flex ${msg.role === "client" ? "justify-end" : "justify-start"}`}
+          className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
         >
           <div
             className={`rounded-2xl px-3 py-2 text-xs max-w-[85%] ${
-              msg.role === "client"
+              msg.role === "user"
                 ? "bg-gradient-to-r from-brand-blue to-brand-purple text-white rounded-br-sm"
                 : "bg-muted/60 text-foreground/80 rounded-bl-sm"
             }`}
@@ -48,7 +84,7 @@ function ChatPreview() {
           </div>
         </motion.div>
       ))}
-      {visibleCount < messages.length && visibleCount > 0 && (
+      {visibleCount < chatPreview.length && visibleCount > 0 && (
         <div className="flex items-center gap-1 px-3">
           <span className="typing-dot h-1.5 w-1.5 rounded-full bg-brand-blue" />
           <span className="typing-dot h-1.5 w-1.5 rounded-full bg-brand-blue" />
@@ -66,7 +102,6 @@ export function HeroSection({ onOpenChat }: { onOpenChat?: () => void }) {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          {/* Left: text */}
           <div className="flex-1 text-center lg:text-left">
             <FadeIn delay={0.1}>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground">
@@ -74,21 +109,21 @@ export function HeroSection({ onOpenChat }: { onOpenChat?: () => void }) {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                 </span>
-                Бесплатный разбор для вашего бизнеса
+                AI-агентство в Казахстане
               </div>
             </FadeIn>
 
             <FadeIn delay={0.2}>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl leading-tight">
-                AI-продавец, который{" "}
-                <span className="gradient-text">закрывает заявки</span>{" "}
-                за вас
+                AI-решения для
+                <br />
+                вашего <RotatingText />
               </h1>
             </FadeIn>
 
             <FadeIn delay={0.4}>
               <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-                Бот в WhatsApp и Telegram, который отвечает клиентам за 3 секунды, консультирует, считает стоимость и записывает — 24/7, без выходных.
+                Боты-продавцы, мини-CRM без подписок, AI-ассистенты, автоматизация — под ключ. Расскажите о задаче, подберём решение.
               </p>
             </FadeIn>
 
@@ -100,7 +135,7 @@ export function HeroSection({ onOpenChat }: { onOpenChat?: () => void }) {
                   onClick={onOpenChat}
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  Попробовать AI-продавца
+                  Подобрать решение
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
@@ -135,7 +170,6 @@ export function HeroSection({ onOpenChat }: { onOpenChat?: () => void }) {
             </FadeIn>
           </div>
 
-          {/* Right: chat preview */}
           <FadeIn delay={0.5} className="hidden lg:flex flex-shrink-0">
             <ChatPreview />
           </FadeIn>

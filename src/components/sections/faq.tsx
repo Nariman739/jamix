@@ -64,7 +64,7 @@ export function FAQSection({ onOpenChat }: { onOpenChat?: () => void }) {
               onClick={onOpenChat}
               className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-6 py-2.5 text-sm text-brand-blue hover:bg-brand-blue/20 transition-colors"
             >
-              Спросить AI-продавца
+              Спросить AI-помощника
             </button>
           </div>
         </FadeIn>
