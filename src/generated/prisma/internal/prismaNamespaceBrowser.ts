@@ -61,7 +61,8 @@ export const ModelName = {
   WAInstance: 'WAInstance',
   Chat: 'Chat',
   Message: 'Message',
-  OutboundJob: 'OutboundJob'
+  OutboundJob: 'OutboundJob',
+  Payment: 'Payment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -134,7 +135,7 @@ export const TenantScalarFieldEnum = {
   apiKeyHash: 'apiKeyHash',
   apiKeyHint: 'apiKeyHint',
   telegramChatId: 'telegramChatId',
-  trialEndsAt: 'trialEndsAt',
+  currentPeriodEnd: 'currentPeriodEnd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -260,6 +261,23 @@ export const OutboundJobScalarFieldEnum = {
 } as const
 
 export type OutboundJobScalarFieldEnum = (typeof OutboundJobScalarFieldEnum)[keyof typeof OutboundJobScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  amount: 'amount',
+  currency: 'currency',
+  plan: 'plan',
+  durationDays: 'durationDays',
+  method: 'method',
+  status: 'status',
+  reference: 'reference',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const SortOrder = {

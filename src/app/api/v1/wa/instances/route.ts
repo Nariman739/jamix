@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authenticateApiRequest, jsonError } from "@/lib/wa-api-helpers";
+import { effectivePlan, planConfig } from "@/lib/plans";
 
 export async function GET(req: NextRequest) {
   const authed = await authenticateApiRequest(req);
@@ -35,15 +36,22 @@ export async function POST(req: NextRequest) {
     return jsonError("Invalid webhook URL", 400);
   }
 
-  // FREE plan limit: max 1 instance
   const tenant = await prisma.tenant.findUnique({ where: { id: authed.tenantId } });
   if (!tenant) return jsonError("Tenant not found", 404);
 
-  const count = await prisma.wAInstance.count({ where: { tenantId: authed.tenantId } });
-  const limit = tenant.plan === "FREE" ? 1 : tenant.plan === "PRO" ? 5 : 50;
-  if (count >= limit) {
+  const active = effectivePlan(tenant.plan, tenant.currentPeriodEnd);
+  if (active === "EXPIRED") {
     return jsonError(
-      `Достигнут лимит номеров на тарифе ${tenant.plan} (${limit}). Обновите тариф.`,
+      "Ваш план истёк. Активируйте подписку чтобы продолжить.",
+      402,
+    );
+  }
+
+  const cfg = planConfig(tenant.plan, tenant.currentPeriodEnd);
+  const count = await prisma.wAInstance.count({ where: { tenantId: authed.tenantId } });
+  if (count >= cfg.maxInstances) {
+    return jsonError(
+      `Достигнут лимит номеров на тарифе ${cfg.name} (${cfg.maxInstances}). Обновите тариф.`,
       402,
     );
   }

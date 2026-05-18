@@ -31,7 +31,7 @@ export type TenantMinAggregateOutputType = {
   apiKeyHash: string | null
   apiKeyHint: string | null
   telegramChatId: string | null
-  trialEndsAt: Date | null
+  currentPeriodEnd: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -43,7 +43,7 @@ export type TenantMaxAggregateOutputType = {
   apiKeyHash: string | null
   apiKeyHint: string | null
   telegramChatId: string | null
-  trialEndsAt: Date | null
+  currentPeriodEnd: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,7 +55,7 @@ export type TenantCountAggregateOutputType = {
   apiKeyHash: number
   apiKeyHint: number
   telegramChatId: number
-  trialEndsAt: number
+  currentPeriodEnd: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,7 +69,7 @@ export type TenantMinAggregateInputType = {
   apiKeyHash?: true
   apiKeyHint?: true
   telegramChatId?: true
-  trialEndsAt?: true
+  currentPeriodEnd?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +81,7 @@ export type TenantMaxAggregateInputType = {
   apiKeyHash?: true
   apiKeyHint?: true
   telegramChatId?: true
-  trialEndsAt?: true
+  currentPeriodEnd?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -93,7 +93,7 @@ export type TenantCountAggregateInputType = {
   apiKeyHash?: true
   apiKeyHint?: true
   telegramChatId?: true
-  trialEndsAt?: true
+  currentPeriodEnd?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -178,7 +178,7 @@ export type TenantGroupByOutputType = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId: string | null
-  trialEndsAt: Date | null
+  currentPeriodEnd: Date | null
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -211,11 +211,12 @@ export type TenantWhereInput = {
   apiKeyHash?: Prisma.StringFilter<"Tenant"> | string
   apiKeyHint?: Prisma.StringFilter<"Tenant"> | string
   telegramChatId?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  trialEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   users?: Prisma.TenantUserListRelationFilter
   instances?: Prisma.WAInstanceListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -225,11 +226,12 @@ export type TenantOrderByWithRelationInput = {
   apiKeyHash?: Prisma.SortOrder
   apiKeyHint?: Prisma.SortOrder
   telegramChatId?: Prisma.SortOrderInput | Prisma.SortOrder
-  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   users?: Prisma.TenantUserOrderByRelationAggregateInput
   instances?: Prisma.WAInstanceOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -242,11 +244,12 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   plan?: Prisma.EnumPlanFilter<"Tenant"> | $Enums.Plan
   apiKeyHint?: Prisma.StringFilter<"Tenant"> | string
   telegramChatId?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  trialEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   users?: Prisma.TenantUserListRelationFilter
   instances?: Prisma.WAInstanceListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }, "id" | "apiKeyHash">
 
 export type TenantOrderByWithAggregationInput = {
@@ -256,7 +259,7 @@ export type TenantOrderByWithAggregationInput = {
   apiKeyHash?: Prisma.SortOrder
   apiKeyHint?: Prisma.SortOrder
   telegramChatId?: Prisma.SortOrderInput | Prisma.SortOrder
-  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -274,7 +277,7 @@ export type TenantScalarWhereWithAggregatesInput = {
   apiKeyHash?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   apiKeyHint?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   telegramChatId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
-  trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -286,11 +289,12 @@ export type TenantCreateInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
   instances?: Prisma.WAInstanceCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -300,11 +304,12 @@ export type TenantUncheckedCreateInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
   instances?: Prisma.WAInstanceUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -314,11 +319,12 @@ export type TenantUpdateInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
   instances?: Prisma.WAInstanceUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -328,11 +334,12 @@ export type TenantUncheckedUpdateInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
   instances?: Prisma.WAInstanceUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -342,7 +349,7 @@ export type TenantCreateManyInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -354,7 +361,7 @@ export type TenantUpdateManyMutationInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -366,7 +373,7 @@ export type TenantUncheckedUpdateManyInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -378,7 +385,7 @@ export type TenantCountOrderByAggregateInput = {
   apiKeyHash?: Prisma.SortOrder
   apiKeyHint?: Prisma.SortOrder
   telegramChatId?: Prisma.SortOrder
-  trialEndsAt?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -390,7 +397,7 @@ export type TenantMaxOrderByAggregateInput = {
   apiKeyHash?: Prisma.SortOrder
   apiKeyHint?: Prisma.SortOrder
   telegramChatId?: Prisma.SortOrder
-  trialEndsAt?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -402,7 +409,7 @@ export type TenantMinOrderByAggregateInput = {
   apiKeyHash?: Prisma.SortOrder
   apiKeyHint?: Prisma.SortOrder
   telegramChatId?: Prisma.SortOrder
-  trialEndsAt?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -448,6 +455,20 @@ export type TenantUpdateOneRequiredWithoutInstancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutInstancesInput, Prisma.TenantUpdateWithoutInstancesInput>, Prisma.TenantUncheckedUpdateWithoutInstancesInput>
 }
 
+export type TenantCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.TenantUpsertWithoutPaymentsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutPaymentsInput, Prisma.TenantUpdateWithoutPaymentsInput>, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+}
+
 export type TenantCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -455,10 +476,11 @@ export type TenantCreateWithoutUsersInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   instances?: Prisma.WAInstanceCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsersInput = {
@@ -468,10 +490,11 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   instances?: Prisma.WAInstanceUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsersInput = {
@@ -497,10 +520,11 @@ export type TenantUpdateWithoutUsersInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instances?: Prisma.WAInstanceUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -510,10 +534,11 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instances?: Prisma.WAInstanceUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutInstancesInput = {
@@ -523,10 +548,11 @@ export type TenantCreateWithoutInstancesInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutInstancesInput = {
@@ -536,10 +562,11 @@ export type TenantUncheckedCreateWithoutInstancesInput = {
   apiKeyHash: string
   apiKeyHint: string
   telegramChatId?: string | null
-  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutInstancesInput = {
@@ -565,10 +592,11 @@ export type TenantUpdateWithoutInstancesInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutInstancesInput = {
@@ -578,10 +606,83 @@ export type TenantUncheckedUpdateWithoutInstancesInput = {
   apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
   apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
   telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  plan?: $Enums.Plan
+  apiKeyHash: string
+  apiKeyHint: string
+  telegramChatId?: string | null
+  currentPeriodEnd?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
+  instances?: Prisma.WAInstanceCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  plan?: $Enums.Plan
+  apiKeyHash: string
+  apiKeyHint: string
+  telegramChatId?: string | null
+  currentPeriodEnd?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
+  instances?: Prisma.WAInstanceUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+}
+
+export type TenantUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutPaymentsInput, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutPaymentsInput, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type TenantUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
+  apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
+  instances?: Prisma.WAInstanceUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  apiKeyHash?: Prisma.StringFieldUpdateOperationsInput | string
+  apiKeyHint?: Prisma.StringFieldUpdateOperationsInput | string
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
+  instances?: Prisma.WAInstanceUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -592,11 +693,13 @@ export type TenantUncheckedUpdateWithoutInstancesInput = {
 export type TenantCountOutputType = {
   users: number
   instances: number
+  payments: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | TenantCountOutputTypeCountUsersArgs
   instances?: boolean | TenantCountOutputTypeCountInstancesArgs
+  payments?: boolean | TenantCountOutputTypeCountPaymentsArgs
 }
 
 /**
@@ -623,6 +726,13 @@ export type TenantCountOutputTypeCountInstancesArgs<ExtArgs extends runtime.Type
   where?: Prisma.WAInstanceWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -631,11 +741,12 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   apiKeyHash?: boolean
   apiKeyHint?: boolean
   telegramChatId?: boolean
-  trialEndsAt?: boolean
+  currentPeriodEnd?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   instances?: boolean | Prisma.Tenant$instancesArgs<ExtArgs>
+  payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -646,7 +757,7 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   apiKeyHash?: boolean
   apiKeyHint?: boolean
   telegramChatId?: boolean
-  trialEndsAt?: boolean
+  currentPeriodEnd?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -658,7 +769,7 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   apiKeyHash?: boolean
   apiKeyHint?: boolean
   telegramChatId?: boolean
-  trialEndsAt?: boolean
+  currentPeriodEnd?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -670,15 +781,16 @@ export type TenantSelectScalar = {
   apiKeyHash?: boolean
   apiKeyHint?: boolean
   telegramChatId?: boolean
-  trialEndsAt?: boolean
+  currentPeriodEnd?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "plan" | "apiKeyHash" | "apiKeyHint" | "telegramChatId" | "trialEndsAt" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "plan" | "apiKeyHash" | "apiKeyHint" | "telegramChatId" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   instances?: boolean | Prisma.Tenant$instancesArgs<ExtArgs>
+  payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -689,6 +801,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     users: Prisma.$TenantUserPayload<ExtArgs>[]
     instances: Prisma.$WAInstancePayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -697,7 +810,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     apiKeyHash: string
     apiKeyHint: string
     telegramChatId: string | null
-    trialEndsAt: Date | null
+    currentPeriodEnd: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -1096,6 +1209,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   users<T extends Prisma.Tenant$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   instances<T extends Prisma.Tenant$instancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$instancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WAInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payments<T extends Prisma.Tenant$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1131,7 +1245,7 @@ export interface TenantFieldRefs {
   readonly apiKeyHash: Prisma.FieldRef<"Tenant", 'String'>
   readonly apiKeyHint: Prisma.FieldRef<"Tenant", 'String'>
   readonly telegramChatId: Prisma.FieldRef<"Tenant", 'String'>
-  readonly trialEndsAt: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly currentPeriodEnd: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }
@@ -1572,6 +1686,30 @@ export type Tenant$instancesArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.WAInstanceScalarFieldEnum | Prisma.WAInstanceScalarFieldEnum[]
+}
+
+/**
+ * Tenant.payments
+ */
+export type Tenant$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

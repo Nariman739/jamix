@@ -83,17 +83,24 @@ model AdminSession {
 // ============================================
 
 model Tenant {
-  id              String        @id @default(uuid())
-  name            String
-  plan            Plan          @default(FREE)
-  apiKeyHash      String        @unique
-  apiKeyHint      String        // first 8 chars for UI display
-  telegramChatId  String?       // for escalation notifications via @JamiXXXBot
-  users           TenantUser[]
-  instances       WAInstance[]
-  trialEndsAt     DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                String       @id @default(uuid())
+  name              String
+  plan              Plan         @default(TRIAL)
+  apiKeyHash        String       @unique
+  apiKeyHint        String       // first 8 chars for UI display
+  telegramChatId    String?      // for escalation notifications via @JamiXXXBot
+  users             TenantUser[]
+  instances         WAInstance[]
+  payments          Payment[]
+
+  // Billing — currentPeriodEnd is the single source of truth for "when does access end"
+  // On signup: plan=TRIAL, currentPeriodEnd=now+3d
+  // After payment: plan=STARTER/PRO/BUSINESS, currentPeriodEnd=now+30d (or extended)
+  // After expiry: code logic flips plan→EXPIRED when checking
+  currentPeriodEnd  DateTime?
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@index([createdAt])
 }
@@ -234,9 +241,44 @@ model OutboundJob {
 }
 
 enum Plan {
-  FREE
-  PRO
-  BUSINESS
+  FREE      // deprecated — kept in Postgres enum for backwards compat, do not use in code
+  TRIAL     // default on signup, 3 days free
+  STARTER   // ~4990₸ — 1 number, basic AI limits
+  PRO       // ~9990₸ — 1 number, all features
+  BUSINESS  // ~24990₸ — 3 numbers, priority
+  EXPIRED   // trial ended without payment, or paid plan expired
+}
+
+model Payment {
+  id           String         @id @default(uuid())
+  tenantId     String
+  tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  amount       Int            // in tenge (4990, 9990, etc.)
+  currency     String         @default("KZT")
+  plan         Plan           // which plan this payment activated
+  durationDays Int            @default(30)
+  method       PaymentMethod  @default(MANUAL)
+  status       PaymentStatus  @default(CONFIRMED)
+  reference    String?        // external txn id (Kaspi reference, TipTopPay id, etc.)
+  note         String?        // admin notes (e.g. "Paid via Kaspi QR 12-04-2026")
+  createdAt    DateTime       @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum PaymentMethod {
+  MANUAL       // admin manually marked paid (e.g. after Kaspi transfer)
+  KASPI        // future: Kaspi Pay integration
+  TIPTOPPAY    // future: TipTopPay recurring
+  CARD         // generic card
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REFUNDED
+  CANCELLED
 }
 
 enum TenantRole {

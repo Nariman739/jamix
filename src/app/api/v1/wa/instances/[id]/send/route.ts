@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireInstance, jsonError } from "@/lib/wa-api-helpers";
+import { checkTenantQuota } from "@/lib/quota";
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   const r = await requireInstance(req, id);
   if ("error" in r) return r.error;
+
+  const quota = await checkTenantQuota(r.instance.tenantId);
+  if (!quota.ok) return jsonError(quota.message, 402);
 
   if (r.instance.status !== "CONNECTED") {
     return jsonError(`Instance is not connected (status: ${r.instance.status})`, 409);

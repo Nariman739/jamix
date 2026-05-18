@@ -90,15 +90,23 @@ export function DashboardClient() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold gradient-text">JamiX Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Лиды и разговоры</p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleLogout}>
-          <LogOut size={14} />
-          Выйти
-        </Button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/dashboard/tenants"
+            className="text-sm px-3 py-1.5 rounded-xl bg-brand-blue/15 text-brand-blue hover:bg-brand-blue/25"
+          >
+            Клиенты Jamiwa →
+          </a>
+          <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleLogout}>
+            <LogOut size={14} />
+            Выйти
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}

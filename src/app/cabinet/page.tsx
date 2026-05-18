@@ -3,16 +3,23 @@ import Link from "next/link";
 import { getCurrentTenantUser } from "@/lib/tenant-auth";
 import { prisma } from "@/lib/prisma";
 import { LogoutButton } from "@/components/cabinet/logout-button";
-import { Key, Settings as SettingsIcon, Plus, Bot } from "lucide-react";
+import { Key, Settings as SettingsIcon, Plus, Bot, CreditCard } from "lucide-react";
+import { effectivePlan, planConfig, daysLeft } from "@/lib/plans";
 
 export default async function CabinetHome() {
   const user = await getCurrentTenantUser();
   if (!user) redirect("/cabinet/login");
 
+  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId } });
   const instances = await prisma.wAInstance.findMany({
     where: { tenantId: user.tenantId },
     orderBy: { createdAt: "desc" },
   });
+
+  const active = effectivePlan(tenant!.plan, tenant!.currentPeriodEnd);
+  const cfg = planConfig(tenant!.plan, tenant!.currentPeriodEnd);
+  const left = daysLeft(tenant!.currentPeriodEnd);
+  const showWarning = active === "EXPIRED" || (active === "TRIAL" && left <= 1);
 
   const statusColor: Record<string, string> = {
     PENDING: "text-amber-400",
@@ -41,13 +48,53 @@ export default async function CabinetHome() {
           <h1 className="text-2xl font-bold gradient-text">Jamiwa</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {user.tenantName} · {user.email} ·{" "}
-            <span className="uppercase tracking-wide">{user.tenantPlan}</span>
+            <span className="uppercase tracking-wide">{cfg.name}</span>
           </p>
         </div>
         <LogoutButton />
       </header>
 
-      <nav className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-10">
+      {showWarning && (
+        <Link
+          href="/cabinet/billing"
+          className={`block rounded-2xl p-4 mb-6 transition ${
+            active === "EXPIRED"
+              ? "bg-red-500/10 border border-red-500/30 hover:bg-red-500/15"
+              : "bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/15"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium">
+                {active === "EXPIRED"
+                  ? "⚠️ Ваш план истёк"
+                  : `⏰ Триал заканчивается ${left === 0 ? "сегодня" : "завтра"}`}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {active === "EXPIRED"
+                  ? "Активируйте подписку чтобы продолжить использовать сервис"
+                  : "Активируйте план чтобы не потерять доступ"}
+              </div>
+            </div>
+            <span className="text-sm font-medium">Активировать →</span>
+          </div>
+        </Link>
+      )}
+
+      <nav className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+        <Link
+          href="/cabinet/billing"
+          className="glass rounded-2xl p-4 flex items-center gap-3 hover:bg-muted/30 transition"
+        >
+          <CreditCard className="text-brand-blue" size={20} />
+          <div>
+            <div className="font-medium">Подписка</div>
+            <div className="text-xs text-muted-foreground">
+              {cfg.name}
+              {active !== "EXPIRED" && left > 0 ? ` · ${left} дн.` : ""}
+            </div>
+          </div>
+        </Link>
         <Link
           href="/cabinet/api-keys"
           className="glass rounded-2xl p-4 flex items-center gap-3 hover:bg-muted/30 transition"
@@ -69,12 +116,12 @@ export default async function CabinetHome() {
           </div>
         </Link>
         <div className="glass rounded-2xl p-4 flex items-center gap-3">
-          <span className="inline-flex items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue text-xs font-semibold px-2.5 py-1 uppercase">
-            {user.tenantPlan}
-          </span>
+          <Bot className="text-brand-blue" size={20} />
           <div>
-            <div className="font-medium">Тариф</div>
-            <div className="text-xs text-muted-foreground">{instances.length} номеров</div>
+            <div className="font-medium">Номеров</div>
+            <div className="text-xs text-muted-foreground">
+              {instances.length}/{cfg.maxInstances}
+            </div>
           </div>
         </div>
       </nav>

@@ -96,3 +96,8 @@ export type Message = Prisma.MessageModel
  * 
  */
 export type OutboundJob = Prisma.OutboundJobModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel

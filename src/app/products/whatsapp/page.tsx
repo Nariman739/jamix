@@ -181,50 +181,54 @@ export default function ProductLanding() {
           </p>
           <div className="grid md:grid-cols-3 gap-4">
             <PriceCard
-              name="FREE"
-              price="0₸"
-              period="7 дней бесплатно"
+              name="STARTER"
+              price="4 990₸"
+              period="за номер / месяц"
               features={[
                 "1 номер WhatsApp",
-                "100 AI-сообщений / день",
-                "Базовый AI",
-                "Тест-чат",
+                "200 AI-сообщений / день",
+                "База знаний",
+                "Эскалация в Telegram",
                 "Кабинет и API",
               ]}
-              cta="Попробовать"
+              cta="Начать с триала"
               ctaHref="/cabinet/signup"
             />
             <PriceCard
               name="PRO"
-              price="2 990₸"
+              price="9 990₸"
               period="за номер / месяц"
               features={[
-                "До 5 номеров",
-                "Безлимит AI-сообщений",
+                "1 номер WhatsApp",
+                "AI без лимита (Fair Use 2000/день)",
                 "Claude Sonnet (умнее)",
                 "База знаний 10 000 символов",
                 "Telegram-уведомления",
                 "Webhooks для интеграций",
               ]}
               highlight
-              cta="Начать"
+              cta="Начать с триала"
               ctaHref="/cabinet/signup"
             />
             <PriceCard
               name="BUSINESS"
-              price="По договору"
-              period="от 10 номеров"
+              price="24 990₸"
+              period="за 3 номера / месяц"
               features={[
-                "Любое количество номеров",
+                "3 номера WhatsApp",
+                "5000 AI-сообщений на номер",
                 "Приоритетная поддержка",
                 "Кастомные интеграции",
                 "AmoCRM, Bitrix24, n8n",
-                "Свой брендинг (white-label)",
               ]}
-              cta="Связаться"
-              ctaHref="/#contact"
+              cta="Начать с триала"
+              ctaHref="/cabinet/signup"
             />
           </div>
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            <strong className="text-foreground">3 дня бесплатно</strong> на любом тарифе. Без карты.
+            Подключи свой номер, протестируй — потом решишь.
+          </p>
         </div>
       </section>
 

@@ -22,11 +22,34 @@ export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
 
 export const Plan = {
   FREE: 'FREE',
+  TRIAL: 'TRIAL',
+  STARTER: 'STARTER',
   PRO: 'PRO',
-  BUSINESS: 'BUSINESS'
+  BUSINESS: 'BUSINESS',
+  EXPIRED: 'EXPIRED'
 } as const
 
 export type Plan = (typeof Plan)[keyof typeof Plan]
+
+
+export const PaymentMethod = {
+  MANUAL: 'MANUAL',
+  KASPI: 'KASPI',
+  TIPTOPPAY: 'TIPTOPPAY',
+  CARD: 'CARD'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
 export const TenantRole = {

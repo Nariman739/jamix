@@ -6,6 +6,9 @@ import crypto from "crypto";
 const SESSION_COOKIE = "tenant_session";
 const SESSION_DURATION_DAYS = 30;
 const BCRYPT_ROUNDS = 10;
+const TRIAL_DAYS = 3;
+
+export type TenantPlan = "FREE" | "TRIAL" | "STARTER" | "PRO" | "BUSINESS" | "EXPIRED";
 
 export type CurrentTenantUser = {
   userId: string;
@@ -14,7 +17,8 @@ export type CurrentTenantUser = {
   role: "OWNER" | "MANAGER";
   tenantId: string;
   tenantName: string;
-  tenantPlan: "FREE" | "PRO" | "BUSINESS";
+  tenantPlan: TenantPlan;
+  currentPeriodEnd: Date | null;
 };
 
 export async function hashPassword(password: string): Promise<string> {
@@ -94,6 +98,7 @@ export async function getCurrentTenantUser(): Promise<CurrentTenantUser | null> 
     tenantId: session.user.tenantId,
     tenantName: session.user.tenant.name,
     tenantPlan: session.user.tenant.plan,
+    currentPeriodEnd: session.user.tenant.currentPeriodEnd,
   };
 }
 
@@ -113,13 +118,18 @@ export async function signupTenant(args: {
   if (existing) throw new Error("Email already registered");
 
   const passwordHash = await hashPassword(args.password);
-  const { key, hint, hash } = generateApiKey();
+  const { hint, hash } = generateApiKey();
+
+  const trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
 
   const tenant = await prisma.tenant.create({
     data: {
       name: args.tenantName,
       apiKeyHash: hash,
       apiKeyHint: hint,
+      plan: "TRIAL",
+      currentPeriodEnd: trialEnd,
       users: {
         create: {
           email: args.email,
@@ -144,6 +154,7 @@ export async function signupTenant(args: {
     tenantId: tenant.id,
     tenantName: tenant.name,
     tenantPlan: tenant.plan,
+    currentPeriodEnd: tenant.currentPeriodEnd,
   };
 }
 
@@ -167,5 +178,6 @@ export async function loginTenant(email: string, password: string): Promise<Curr
     tenantId: user.tenantId,
     tenantName: user.tenant.name,
     tenantPlan: user.tenant.plan,
+    currentPeriodEnd: user.tenant.currentPeriodEnd,
   };
 }

@@ -7,7 +7,7 @@ import { Save, Send, Building2, Bell } from "lucide-react";
 interface Props {
   initial: {
     name: string;
-    plan: "FREE" | "PRO" | "BUSINESS";
+    plan: "FREE" | "TRIAL" | "STARTER" | "PRO" | "BUSINESS" | "EXPIRED";
     telegramChatId: string | null;
   };
 }
