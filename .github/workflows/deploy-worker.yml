@@ -1,12 +1,14 @@
 name: Deploy Worker to Hetzner
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "worker/**"
-      - "prisma/schema.prisma"
-      - ".github/workflows/deploy-worker.yml"
+  # Auto-deploy on push disabled until VPS is provisioned and secrets are set.
+  # Re-enable by uncommenting the `push:` block below.
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "worker/**"
+  #     - "prisma/schema.prisma"
+  #     - ".github/workflows/deploy-worker.yml"
   workflow_dispatch:
 
 jobs:
