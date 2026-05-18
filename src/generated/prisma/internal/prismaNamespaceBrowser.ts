@@ -53,7 +53,15 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   ChatSession: 'ChatSession',
   AdminUser: 'AdminUser',
-  AdminSession: 'AdminSession'
+  AdminSession: 'AdminSession',
+  Tenant: 'Tenant',
+  TenantUser: 'TenantUser',
+  TenantSession: 'TenantSession',
+  WorkerNode: 'WorkerNode',
+  WAInstance: 'WAInstance',
+  Chat: 'Chat',
+  Message: 'Message',
+  OutboundJob: 'OutboundJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -117,6 +125,141 @@ export const AdminSessionScalarFieldEnum = {
 } as const
 
 export type AdminSessionScalarFieldEnum = (typeof AdminSessionScalarFieldEnum)[keyof typeof AdminSessionScalarFieldEnum]
+
+
+export const TenantScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  plan: 'plan',
+  apiKeyHash: 'apiKeyHash',
+  apiKeyHint: 'apiKeyHint',
+  telegramChatId: 'telegramChatId',
+  trialEndsAt: 'trialEndsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+export const TenantUserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  name: 'name',
+  tenantId: 'tenantId',
+  role: 'role',
+  createdAt: 'createdAt'
+} as const
+
+export type TenantUserScalarFieldEnum = (typeof TenantUserScalarFieldEnum)[keyof typeof TenantUserScalarFieldEnum]
+
+
+export const TenantSessionScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TenantSessionScalarFieldEnum = (typeof TenantSessionScalarFieldEnum)[keyof typeof TenantSessionScalarFieldEnum]
+
+
+export const WorkerNodeScalarFieldEnum = {
+  id: 'id',
+  nodeKey: 'nodeKey',
+  status: 'status',
+  capacity: 'capacity',
+  instanceCount: 'instanceCount',
+  lastHeartbeat: 'lastHeartbeat',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkerNodeScalarFieldEnum = (typeof WorkerNodeScalarFieldEnum)[keyof typeof WorkerNodeScalarFieldEnum]
+
+
+export const WAInstanceScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  label: 'label',
+  phoneNumber: 'phoneNumber',
+  status: 'status',
+  workerNodeId: 'workerNodeId',
+  webhookUrl: 'webhookUrl',
+  webhookSecret: 'webhookSecret',
+  sessionBlob: 'sessionBlob',
+  qrCode: 'qrCode',
+  qrExpiresAt: 'qrExpiresAt',
+  lastSeenAt: 'lastSeenAt',
+  bannedAt: 'bannedAt',
+  aiEnabled: 'aiEnabled',
+  aiModel: 'aiModel',
+  aiSystemPrompt: 'aiSystemPrompt',
+  aiBusinessName: 'aiBusinessName',
+  aiGreeting: 'aiGreeting',
+  aiMaxTurns: 'aiMaxTurns',
+  aiOnlyDuringHrs: 'aiOnlyDuringHrs',
+  aiWorkStartHr: 'aiWorkStartHr',
+  aiWorkEndHr: 'aiWorkEndHr',
+  aiPausedChats: 'aiPausedChats',
+  aiEscalateOnHotLead: 'aiEscalateOnHotLead',
+  aiEscalateOnHandoff: 'aiEscalateOnHandoff',
+  aiHandoffMessage: 'aiHandoffMessage',
+  aiKnowledgeBase: 'aiKnowledgeBase',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WAInstanceScalarFieldEnum = (typeof WAInstanceScalarFieldEnum)[keyof typeof WAInstanceScalarFieldEnum]
+
+
+export const ChatScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  remoteJid: 'remoteJid',
+  phoneNumber: 'phoneNumber',
+  name: 'name',
+  lastMsgAt: 'lastMsgAt',
+  unread: 'unread',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
+
+
+export const MessageScalarFieldEnum = {
+  id: 'id',
+  chatId: 'chatId',
+  instanceId: 'instanceId',
+  fromMe: 'fromMe',
+  text: 'text',
+  mediaUrl: 'mediaUrl',
+  mediaType: 'mediaType',
+  mediaMime: 'mediaMime',
+  status: 'status',
+  whatsappId: 'whatsappId',
+  createdAt: 'createdAt'
+} as const
+
+export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const OutboundJobScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  to: 'to',
+  payload: 'payload',
+  attempts: 'attempts',
+  status: 'status',
+  errorMsg: 'errorMsg',
+  scheduledAt: 'scheduledAt',
+  processedAt: 'processedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type OutboundJobScalarFieldEnum = (typeof OutboundJobScalarFieldEnum)[keyof typeof OutboundJobScalarFieldEnum]
 
 
 export const SortOrder = {

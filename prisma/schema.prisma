@@ -77,3 +77,208 @@ model AdminSession {
   expiresAt DateTime
   createdAt DateTime  @default(now())
 }
+
+// ============================================
+// JAMIWA — WhatsApp SaaS module (multi-tenant)
+// ============================================
+
+model Tenant {
+  id              String        @id @default(uuid())
+  name            String
+  plan            Plan          @default(FREE)
+  apiKeyHash      String        @unique
+  apiKeyHint      String        // first 8 chars for UI display
+  telegramChatId  String?       // for escalation notifications via @JamiXXXBot
+  users           TenantUser[]
+  instances       WAInstance[]
+  trialEndsAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([createdAt])
+}
+
+model TenantUser {
+  id           String          @id @default(uuid())
+  email        String          @unique
+  passwordHash String
+  name         String?
+  tenantId     String
+  tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role         TenantRole      @default(OWNER)
+  sessions     TenantSession[]
+  createdAt    DateTime        @default(now())
+
+  @@index([tenantId])
+}
+
+model TenantSession {
+  id        String     @id @default(uuid())
+  token     String     @unique
+  userId    String
+  user      TenantUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime   @default(now())
+
+  @@index([userId])
+}
+
+model WorkerNode {
+  id            String        @id @default(uuid())
+  nodeKey       String        @unique  // hostname or env-defined id
+  status        NodeStatus    @default(ONLINE)
+  capacity      Int           @default(50)
+  instanceCount Int           @default(0)
+  lastHeartbeat DateTime      @default(now())
+  instances     WAInstance[]
+  createdAt     DateTime      @default(now())
+}
+
+model WAInstance {
+  id            String         @id @default(uuid())
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  label         String?        // human name like "Sales WA"
+  phoneNumber   String?        // populated after QR scan, E.164 without +
+  status        WAStatus       @default(PENDING)
+  workerNodeId  String?
+  workerNode    WorkerNode?    @relation(fields: [workerNodeId], references: [id])
+  webhookUrl    String?
+  webhookSecret String?        // for HMAC signature
+  sessionBlob   Bytes?         // encrypted Baileys auth state
+  qrCode        String?        // current QR string (cleared after connect or expiry)
+  qrExpiresAt   DateTime?
+  lastSeenAt    DateTime?
+  bannedAt      DateTime?
+
+  // AI bot config — if enabled, worker auto-replies to incoming messages
+  aiEnabled       Boolean      @default(false)
+  aiModel         String       @default("anthropic/claude-sonnet-4")
+  aiSystemPrompt  String?      // role + behavior for the AI
+  aiBusinessName  String?      // injected into prompt as company name
+  aiGreeting      String?      // first message after long pause
+  aiMaxTurns      Int          @default(20)   // context window per chat
+  aiOnlyDuringHrs Boolean      @default(false) // limit AI to working hours
+  aiWorkStartHr   Int?         // 0-23
+  aiWorkEndHr     Int?         // 0-23
+  aiPausedChats   String[]     @default([])   // remoteJids where AI is muted (manual takeover)
+
+  // Escalation — AI hands off to human
+  aiEscalateOnHotLead   Boolean   @default(true)   // notify on purchase intent
+  aiEscalateOnHandoff   Boolean   @default(true)   // pause AI when client asks for a human
+  aiHandoffMessage      String?   // what to tell client when AI hands off (e.g. "Менеджер ответит в течение часа")
+
+  // Knowledge base — injected into system prompt
+  aiKnowledgeBase  String?   // free-form FAQ / price list / company info (max ~10000 chars)
+  chats         Chat[]
+  messages      Message[]
+  jobs          OutboundJob[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([tenantId])
+  @@index([workerNodeId, status])
+}
+
+model Chat {
+  id          String     @id @default(uuid())
+  instanceId  String
+  instance    WAInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  remoteJid   String     // 77001234567@s.whatsapp.net or @lid
+  phoneNumber String?    // resolved E.164 if available
+  name        String?
+  lastMsgAt   DateTime?
+  unread      Int        @default(0)
+  messages    Message[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([instanceId, remoteJid])
+  @@index([instanceId, lastMsgAt])
+}
+
+model Message {
+  id          String       @id @default(uuid())
+  chatId      String
+  chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  instanceId  String
+  instance    WAInstance   @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  fromMe      Boolean
+  text        String?
+  mediaUrl    String?
+  mediaType   MediaType?
+  mediaMime   String?
+  status      MsgStatus    @default(PENDING)
+  whatsappId  String?      // WA message ID for status mapping
+  createdAt   DateTime     @default(now())
+
+  @@index([chatId, createdAt])
+  @@index([whatsappId])
+}
+
+model OutboundJob {
+  id          String     @id @default(uuid())
+  instanceId  String
+  instance    WAInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  to          String     // E.164 or JID
+  payload     Json       // { type: 'text'|'image'|..., text?, mediaUrl?, ... }
+  attempts    Int        @default(0)
+  status      JobStatus  @default(QUEUED)
+  errorMsg    String?
+  scheduledAt DateTime   @default(now())
+  processedAt DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([instanceId, status])
+  @@index([status, scheduledAt])
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum TenantRole {
+  OWNER
+  MANAGER
+}
+
+enum NodeStatus {
+  ONLINE
+  OFFLINE
+  DRAINING
+}
+
+enum WAStatus {
+  PENDING       // created, not yet linked
+  QR_READY      // QR code generated, waiting for scan
+  CONNECTING
+  CONNECTED
+  DISCONNECTED
+  LOGGED_OUT    // need re-scan
+  BANNED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+  STICKER
+}
+
+enum MsgStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum JobStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  FAILED
+}

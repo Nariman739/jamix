@@ -18,3 +18,74 @@ export const SessionStatus = {
 } as const
 
 export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
+
+
+export const Plan = {
+  FREE: 'FREE',
+  PRO: 'PRO',
+  BUSINESS: 'BUSINESS'
+} as const
+
+export type Plan = (typeof Plan)[keyof typeof Plan]
+
+
+export const TenantRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER'
+} as const
+
+export type TenantRole = (typeof TenantRole)[keyof typeof TenantRole]
+
+
+export const NodeStatus = {
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE',
+  DRAINING: 'DRAINING'
+} as const
+
+export type NodeStatus = (typeof NodeStatus)[keyof typeof NodeStatus]
+
+
+export const WAStatus = {
+  PENDING: 'PENDING',
+  QR_READY: 'QR_READY',
+  CONNECTING: 'CONNECTING',
+  CONNECTED: 'CONNECTED',
+  DISCONNECTED: 'DISCONNECTED',
+  LOGGED_OUT: 'LOGGED_OUT',
+  BANNED: 'BANNED'
+} as const
+
+export type WAStatus = (typeof WAStatus)[keyof typeof WAStatus]
+
+
+export const MediaType = {
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO',
+  DOCUMENT: 'DOCUMENT',
+  AUDIO: 'AUDIO',
+  STICKER: 'STICKER'
+} as const
+
+export type MediaType = (typeof MediaType)[keyof typeof MediaType]
+
+
+export const MsgStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  READ: 'READ',
+  FAILED: 'FAILED'
+} as const
+
+export type MsgStatus = (typeof MsgStatus)[keyof typeof MsgStatus]
+
+
+export const JobStatus = {
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  DONE: 'DONE',
+  FAILED: 'FAILED'
+} as const
+
+export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]

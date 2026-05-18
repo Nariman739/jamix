@@ -56,3 +56,43 @@ export type AdminUser = Prisma.AdminUserModel
  * 
  */
 export type AdminSession = Prisma.AdminSessionModel
+/**
+ * Model Tenant
+ * 
+ */
+export type Tenant = Prisma.TenantModel
+/**
+ * Model TenantUser
+ * 
+ */
+export type TenantUser = Prisma.TenantUserModel
+/**
+ * Model TenantSession
+ * 
+ */
+export type TenantSession = Prisma.TenantSessionModel
+/**
+ * Model WorkerNode
+ * 
+ */
+export type WorkerNode = Prisma.WorkerNodeModel
+/**
+ * Model WAInstance
+ * 
+ */
+export type WAInstance = Prisma.WAInstanceModel
+/**
+ * Model Chat
+ * 
+ */
+export type Chat = Prisma.ChatModel
+/**
+ * Model Message
+ * 
+ */
+export type Message = Prisma.MessageModel
+/**
+ * Model OutboundJob
+ * 
+ */
+export type OutboundJob = Prisma.OutboundJobModel
