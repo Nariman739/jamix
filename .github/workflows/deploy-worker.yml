@@ -1,0 +1,39 @@
+name: Deploy Worker to Hetzner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "prisma/schema.prisma"
+      - ".github/workflows/deploy-worker.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            cd /opt/jamiwa
+            echo "=== git pull ==="
+            git pull --ff-only origin main
+            echo "=== root deps (Prisma client) ==="
+            npm install --no-audit --no-fund
+            npx prisma generate
+            echo "=== worker deps + build ==="
+            cd worker
+            npm install --no-audit --no-fund
+            npm run build
+            echo "=== pm2 restart ==="
+            pm2 restart jamiwa-worker --update-env
+            pm2 save
+            echo "=== status ==="
+            pm2 status jamiwa-worker
