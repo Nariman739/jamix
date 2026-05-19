@@ -4,11 +4,13 @@ import { prisma } from "./db";
 import { startInstance, stopInstance, shutdownAll, isManaged } from "./instance-manager";
 import { tickOutbound } from "./outbound-handler";
 import { tickBulkDetection } from "./antiban";
+import { tickGlobalQuotaAlert } from "./quota";
 
 const NODE_KEY = process.env.WORKER_NODE_KEY || os.hostname();
 const POLL_MS = 1500;
 const HEARTBEAT_MS = 30_000;
 const BULK_DETECT_MS = 60_000;
+const QUOTA_ALERT_MS = 5 * 60_000;
 
 async function registerNode() {
   const node = await prisma.workerNode.upsert({
@@ -118,6 +120,10 @@ async function main() {
     () => tickBulkDetection().catch((e) => console.error("[bulk] tick error:", formatError(e))),
     BULK_DETECT_MS,
   );
+  const quotaAlertInterval = setInterval(
+    () => tickGlobalQuotaAlert().catch((e) => console.error("[quota] alert error:", formatError(e))),
+    QUOTA_ALERT_MS,
+  );
   await tick();
 
   const shutdown = async (signal: string) => {
@@ -125,6 +131,7 @@ async function main() {
     clearInterval(tickInterval);
     clearInterval(heartbeatInterval);
     clearInterval(bulkInterval);
+    clearInterval(quotaAlertInterval);
     shutdownAll();
     await prisma.workerNode.update({
       where: { id: nodeId },

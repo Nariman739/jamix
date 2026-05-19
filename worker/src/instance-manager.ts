@@ -11,6 +11,7 @@ import { makeAuthState } from "./auth-state";
 import { generateAiReply, shouldAiReply } from "./ai-reply";
 import { dispatchWebhook } from "./webhook-dispatcher";
 import { detectDncRequest, blockContact } from "./antiban";
+import { checkAiQuota } from "./quota";
 import { sendTelegram } from "./telegram";
 
 const logger = pino({ level: "silent" });
@@ -306,6 +307,23 @@ export async function startInstance(instanceId: string): Promise<void> {
       if (dncTrigger) continue;
       const fresh = await prisma.wAInstance.findUnique({ where: { id: instanceId } });
       if (fresh && shouldAiReply(fresh, remoteJid)) {
+        // Quota check — защита от пожирания токенов
+        const tenant = await prisma.tenant.findUnique({
+          where: { id: fresh.tenantId },
+          select: { plan: true, currentPeriodEnd: true },
+        });
+        const quota = await checkAiQuota({
+          tenantId: fresh.tenantId,
+          chatId: chat.id,
+          inputText: text,
+          plan: tenant?.plan || "TRIAL",
+          currentPeriodEnd: tenant?.currentPeriodEnd || null,
+        });
+        if (!quota.ok) {
+          console.warn(`[ai] ${instanceId} skipped: ${quota.reason}`);
+          continue;
+        }
+
         // Старт AI генерации немедленно (параллельно с минимальной паузой 600мс
         // чтобы не выглядело как мгновенный бот). Outbound уже потом квантуется.
         const minDelay = 600 + Math.random() * 400; // 0.6-1.0 сек

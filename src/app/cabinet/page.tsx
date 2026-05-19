@@ -15,6 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { effectivePlan, planConfig, daysLeft } from "@/lib/plans";
+import { getTenantUsage } from "@/lib/usage";
 
 export default async function CabinetHome() {
   const user = await getCurrentTenantUser();
@@ -30,6 +31,8 @@ export default async function CabinetHome() {
   const cfg = planConfig(tenant!.plan, tenant!.currentPeriodEnd);
   const left = daysLeft(tenant!.currentPeriodEnd);
   const showWarning = active === "EXPIRED" || (active === "TRIAL" && left <= 1);
+  const usage = await getTenantUsage(user.tenantId, tenant!.plan, tenant!.currentPeriodEnd);
+  const usageWarning = usage.dailyLimit > 0 && usage.pct >= 80;
 
   // Onboarding stage
   const hasConfiguredBot = instances.some((i) => i.aiEnabled && i.aiSystemPrompt);
@@ -172,6 +175,50 @@ export default async function CabinetHome() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Usage today */}
+      {usage.dailyLimit > 0 && (
+        <section className="glass rounded-2xl p-5 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="text-sm font-semibold">AI ответов сегодня</h3>
+              <p className="text-xs text-muted-foreground">
+                Лимит обнуляется в 00:00 по UTC. После исчерпания бот молчит до завтра.
+              </p>
+            </div>
+            <div className="text-right">
+              <div className={`text-2xl font-bold ${usageWarning ? "text-amber-300" : ""}`}>
+                {usage.todayCount}
+                <span className="text-sm text-muted-foreground"> / {usage.dailyLimit}</span>
+              </div>
+              <div className="text-[11px] text-muted-foreground">{usage.planName}</div>
+            </div>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-muted/60 overflow-hidden">
+            <div
+              className={`h-full transition-all ${
+                usage.pct >= 95
+                  ? "bg-rose-400"
+                  : usage.pct >= 80
+                  ? "bg-amber-400"
+                  : "bg-brand-blue"
+              }`}
+              style={{ width: `${usage.pct}%` }}
+            />
+          </div>
+          {usageWarning && (
+            <p className="text-xs text-amber-300 mt-2">
+              {usage.pct >= 100
+                ? "Лимит исчерпан — бот молчит до завтра."
+                : `Использовано ${usage.pct}%. Скоро лимит — подумай о переходе на следующий тариф.`}
+              {" "}
+              <Link href="/cabinet/billing" className="underline">
+                Сменить тариф
+              </Link>
+            </p>
+          )}
         </section>
       )}
 
