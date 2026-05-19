@@ -48,6 +48,10 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
         <span className="text-sm text-brand-blue">Открыть →</span>
       </Link>
 
+      <div className="text-xs text-muted-foreground rounded-lg bg-muted/20 border border-border/30 px-3 py-2">
+        ℹ️ В групповых чатах WhatsApp бот молчит — он отвечает только в личных диалогах. Это защищает от бана и не раздражает участников групп.
+      </div>
+
       <BotSettingsForm
         instanceId={instance.id}
         initial={{

@@ -27,6 +27,13 @@ async function preflight(args: {
     ? args.to
     : `${args.to.replace(/[^0-9]/g, "")}@s.whatsapp.net`;
 
+  // 0. Никаких отправок в группы/каналы/рассылки — только личка
+  const isDirectMessage =
+    remoteJid.endsWith("@s.whatsapp.net") || remoteJid.endsWith("@lid");
+  if (!isDirectMessage) {
+    return { ok: false, reason: `non-DM recipient blocked (${remoteJid.split("@")[1] || "unknown"})` };
+  }
+
   // 1. DNC — recipient asked us to stop
   if (await isBlocked(args.instanceId, remoteJid)) {
     return { ok: false, reason: "recipient in DNC list (USER_REQUESTED)" };

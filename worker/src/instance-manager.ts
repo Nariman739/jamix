@@ -183,6 +183,15 @@ export async function startInstance(instanceId: string): Promise<void> {
       const remoteJid = msg.key.remoteJid;
       if (!remoteJid) continue;
 
+      // Игнорируем всё кроме личных диалогов: группы, каналы, рассылки, статусы.
+      // WhatsApp банит за активность бота в группах + это раздражает участников.
+      const isDirectMessage =
+        remoteJid.endsWith("@s.whatsapp.net") || remoteJid.endsWith("@lid");
+      if (!isDirectMessage) {
+        // @g.us (group), @broadcast, @newsletter, status@broadcast — skip silently
+        continue;
+      }
+
       const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
