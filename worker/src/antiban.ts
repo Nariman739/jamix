@@ -12,23 +12,26 @@ import { sendTelegram } from "./telegram";
 // === DNC ===
 
 // Триггеры для авто-DNC: получатель сам просит не писать.
-// Регэксп matches как слово (с границами), case-insensitive, RU/KZ/EN.
+// ВАЖНО: \b в JS regex работает только для ASCII (Cyrillic в \w не входит),
+// поэтому используем Unicode-aware границы через (?<![\p{L}]) и (?![\p{L}]) + флаг u.
+const NB = `(?<![\\p{L}\\p{N}])`; // не-буква/цифра перед
+const NA = `(?![\\p{L}\\p{N}])`; // не-буква/цифра после
 const DNC_PATTERNS: RegExp[] = [
-  /\bстоп\b/i,
-  /\bстопп+\b/i,
-  /\bстопстоп/i,
-  /\bне\s+пиш[иу]\b/i,
-  /\bне\s+пишите\b/i,
-  /\bотпиш(и|и+те|ите)\b/i,
-  /\bотписаться\b/i,
-  /\bунsubscribe\b/i,
-  /\bunsubscribe\b/i,
-  /\bудалите\s+(меня|мой\s+номер)\b/i,
-  /\bне\s+звоните\s+и\s+не\s+пиш[иу]/i,
-  /\bхватит\s+писать\b/i,
-  /\bбольше\s+не\s+пишите\b/i,
-  /\btoqta\b/i, // KZ
-  /\bжазбаңыз\b/i, // KZ "не пишите"
+  new RegExp(`${NB}стоп${NA}`, "iu"),
+  new RegExp(`${NB}стопп+${NA}`, "iu"),
+  new RegExp(`не\\s+пиш(?:и|у|ите|ите\\s+мне|ите\\s+нам)`, "iu"),
+  new RegExp(`не\\s+пиш(?:и|и+те|ите)\\s+(?:мне|нам|больше)`, "iu"),
+  new RegExp(`отпиш(?:и|и+те|ите)`, "iu"),
+  new RegExp(`отписаться`, "iu"),
+  new RegExp(`unsubscribe`, "i"),
+  new RegExp(`удалите\\s+(?:меня|мой\\s+номер)`, "iu"),
+  new RegExp(`не\\s+звоните\\s+и\\s+не\\s+пиш(?:и|у|ите)`, "iu"),
+  new RegExp(`хватит\\s+(?:писать|спамить)`, "iu"),
+  new RegExp(`больше\\s+не\\s+пиш(?:и|у|ите)`, "iu"),
+  new RegExp(`перестаньте\\s+(?:писать|меня\\s+беспокоить)`, "iu"),
+  new RegExp(`достали\\s+уже`, "iu"),
+  new RegExp(`${NB}toqta${NA}`, "iu"), // KZ "стоп"
+  new RegExp(`жазбаңыз`, "iu"), // KZ "не пишите"
 ];
 
 /** If incoming text matches DNC pattern, returns the matched phrase. Otherwise null. */
