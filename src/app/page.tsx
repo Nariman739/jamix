@@ -4,6 +4,7 @@ import { useCallback, useRef } from "react";
 import { Header } from "@/components/layout/header";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { HeroSection } from "@/components/sections/hero";
+import { JamiwaBanner } from "@/components/sections/jamiwa-banner";
 import { ServicesSection } from "@/components/sections/services";
 import { ProblemsSection } from "@/components/sections/problems";
 import { HowItWorksSection } from "@/components/sections/how-it-works";
@@ -45,6 +46,7 @@ export default function HomePage() {
       <Header onOpenChat={handleOpenChat} />
       <main>
         <HeroSection onOpenChat={handleOpenChat} />
+        <JamiwaBanner />
         <ServicesSection onOpenChat={handleOpenChatWithMessage} />
         <ProblemsSection />
         <HowItWorksSection />
