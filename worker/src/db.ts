@@ -1,5 +1,6 @@
 import { PrismaClient } from "../../src/generated/prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
+// Worker uses pg over TCP (long-lived process). Next.js side uses adapter-neon (serverless).
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 export const prisma = new PrismaClient({ adapter });
