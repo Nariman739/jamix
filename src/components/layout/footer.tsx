@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SITE } from "@/lib/constants";
 import { Send, MessageCircle, Instagram, Phone, Clock, MapPin } from "lucide-react";
 
@@ -75,8 +76,18 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border/20 pt-6 text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} JamiX. Астана, Казахстан. Все права защищены.
+        <div className="border-t border-border/20 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div>
+            &copy; {new Date().getFullYear()} JamiX · ИП ДЖАМИНОВ · БИН 891123351595 · Астана
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/legal/offer" className="hover:text-foreground transition-colors">
+              Публичная оферта
+            </Link>
+            <Link href="/legal/privacy" className="hover:text-foreground transition-colors">
+              Политика конфиденциальности
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

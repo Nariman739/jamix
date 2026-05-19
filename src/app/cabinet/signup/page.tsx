@@ -12,11 +12,16 @@ export default function CabinetSignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      setError("Подтвердите согласие с офертой и политикой конфиденциальности");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
@@ -97,9 +102,36 @@ export default function CabinetSignupPage() {
             />
           </div>
 
+          <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-border accent-brand-blue cursor-pointer"
+            />
+            <span>
+              Я принимаю условия{" "}
+              <Link
+                href="/legal/offer"
+                target="_blank"
+                className="text-brand-blue hover:underline"
+              >
+                публичной оферты
+              </Link>{" "}
+              и{" "}
+              <Link
+                href="/legal/privacy"
+                target="_blank"
+                className="text-brand-blue hover:underline"
+              >
+                политики конфиденциальности
+              </Link>
+            </span>
+          </label>
+
           {error && <p className="text-sm text-red-400">{error}</p>}
 
-          <Button type="submit" className="w-full rounded-xl gap-2" disabled={loading}>
+          <Button type="submit" className="w-full rounded-xl gap-2" disabled={loading || !acceptedTerms}>
             <UserPlus size={16} />
             {loading ? "Создаём..." : "Создать аккаунт"}
           </Button>
