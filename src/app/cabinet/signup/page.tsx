@@ -35,7 +35,7 @@ export default function CabinetSignupPage() {
         setError(data.error || "Ошибка регистрации");
         return;
       }
-      router.push("/cabinet");
+      router.push("/cabinet/setup");
       router.refresh();
     } catch {
       setError("Ошибка соединения");

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { BotSettingsForm } from "@/components/cabinet/bot-settings-form";
 import { InstanceTabs } from "@/components/cabinet/instance-tabs";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 
 export default async function BotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,6 +31,22 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
       </div>
 
       <InstanceTabs id={instance.id} active="bot" />
+
+      <Link
+        href="/cabinet/setup"
+        className="flex items-center gap-3 rounded-2xl border border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 transition px-4 py-3"
+      >
+        <div className="w-9 h-9 rounded-full bg-brand-blue/20 flex items-center justify-center shrink-0">
+          <Sparkles size={16} className="text-brand-blue" />
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-medium">Мастер настройки за 2 минуты</div>
+          <div className="text-xs text-muted-foreground">
+            AI задаст несколько вопросов и сам соберёт бота под твой бизнес
+          </div>
+        </div>
+        <span className="text-sm text-brand-blue">Открыть →</span>
+      </Link>
 
       <BotSettingsForm
         instanceId={instance.id}
