@@ -196,23 +196,44 @@ export async function startInstance(instanceId: string): Promise<void> {
         phoneSrc?.replace(/[^0-9]/g, "") ||
         (remoteJid.endsWith("@s.whatsapp.net") ? remoteJid.split("@")[0] : null);
 
-      const chat = await prisma.chat.upsert({
-        where: { instanceId_remoteJid: { instanceId, remoteJid } },
-        create: {
-          instanceId,
-          remoteJid,
-          phoneNumber,
-          name: msg.pushName || null,
-          lastMsgAt: new Date(),
-          unread: 1,
-        },
-        update: {
-          phoneNumber: phoneNumber ?? undefined,
-          name: msg.pushName ?? undefined,
-          lastMsgAt: new Date(),
-          unread: { increment: 1 },
-        },
-      });
+      // WhatsApp может прислать одного контакта с двумя ID: @s.whatsapp.net и @lid.
+      // Чтобы не плодить дубликаты — сначала ищем чат по phoneNumber, если есть.
+      let chat = null as Awaited<ReturnType<typeof prisma.chat.findFirst>>;
+      if (phoneNumber) {
+        chat = await prisma.chat.findFirst({
+          where: { instanceId, phoneNumber },
+        });
+      }
+      if (chat) {
+        // Существующий чат той же персоны → обновляем
+        chat = await prisma.chat.update({
+          where: { id: chat.id },
+          data: {
+            name: msg.pushName ?? chat.name ?? undefined,
+            lastMsgAt: new Date(),
+            unread: { increment: 1 },
+          },
+        });
+      } else {
+        // Нет известного телефона или новый контакт → upsert по remoteJid
+        chat = await prisma.chat.upsert({
+          where: { instanceId_remoteJid: { instanceId, remoteJid } },
+          create: {
+            instanceId,
+            remoteJid,
+            phoneNumber,
+            name: msg.pushName || null,
+            lastMsgAt: new Date(),
+            unread: 1,
+          },
+          update: {
+            phoneNumber: phoneNumber ?? undefined,
+            name: msg.pushName ?? undefined,
+            lastMsgAt: new Date(),
+            unread: { increment: 1 },
+          },
+        });
+      }
 
       await prisma.message.create({
         data: {
