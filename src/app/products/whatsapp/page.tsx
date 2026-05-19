@@ -12,6 +12,7 @@ import {
   Clock,
   Shield,
 } from "lucide-react";
+import { DemoChat } from "@/components/products/demo-chat";
 
 export const metadata = {
   title: "Jamiwa — AI-бот в WhatsApp для бизнеса",
@@ -63,7 +64,15 @@ export default function ProductLanding() {
             >
               Подключить за 30 секунд <ArrowRight size={16} />
             </Link>
-            <span className="text-xs text-muted-foreground">Тестовый период 7 дней · без карты</span>
+            <span className="text-xs text-muted-foreground">3 дня бесплатно · без карты</span>
+          </div>
+
+          <div className="mt-8 inline-flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 rounded-full px-4 py-2">
+            <Bot size={14} className="text-brand-blue" />
+            <span>
+              Хочешь сначала попробовать AI вживую?{" "}
+              <span className="text-brand-blue font-medium">Кнопка чата справа внизу 👇</span>
+            </span>
           </div>
         </div>
       </section>
@@ -289,6 +298,8 @@ export default function ProductLanding() {
           Jamiwa — продукт JamiX · Astana, KZ · 2026
         </div>
       </footer>
+
+      <DemoChat />
     </div>
   );
 }
