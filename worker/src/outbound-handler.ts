@@ -1,10 +1,77 @@
 import { prisma } from "./db";
 import { isManaged, sendText } from "./instance-manager";
+import {
+  isBlocked,
+  warmupLimit,
+  countTodayColdOutreach,
+  chatHasIncoming,
+} from "./antiban";
 
-const MIN_GAP_MS = 800; // rate limit per instance — 1 msg / ~1s
+const MIN_GAP_MS = 1000; // soft rate limit — ~1 msg/sec on a given number
+const JITTER_MS = 1200; // random extra delay 0..1200ms — looks human
 const lastSentAt = new Map<string, number>();
 
 type Payload = { type: "text"; text: string };
+
+/** Result of a pre-send anti-ban check. If skip — job marked FAILED with reason. */
+type PreflightResult =
+  | { ok: true }
+  | { ok: false; reason: string };
+
+async function preflight(args: {
+  instanceId: string;
+  to: string;
+}): Promise<PreflightResult> {
+  // Build remoteJid (chat key)
+  const remoteJid = args.to.includes("@")
+    ? args.to
+    : `${args.to.replace(/[^0-9]/g, "")}@s.whatsapp.net`;
+
+  // 1. DNC — recipient asked us to stop
+  if (await isBlocked(args.instanceId, remoteJid)) {
+    return { ok: false, reason: "recipient in DNC list (USER_REQUESTED)" };
+  }
+
+  const inst = await prisma.wAInstance.findUnique({
+    where: { id: args.instanceId },
+    select: {
+      connectedAt: true,
+      onlyReplies: true,
+      bulkPausedUntil: true,
+    },
+  });
+  if (!inst) return { ok: false, reason: "instance not found" };
+
+  // 2. Bulk-pause — mass outreach detected earlier, defer
+  if (inst.bulkPausedUntil && inst.bulkPausedUntil > new Date()) {
+    return { ok: false, reason: `bulk-paused until ${inst.bulkPausedUntil.toISOString()}` };
+  }
+
+  // 3. Find chat (if exists) — replies don't count against warm-up
+  const chat = await prisma.chat.findUnique({
+    where: { instanceId_remoteJid: { instanceId: args.instanceId, remoteJid } },
+    select: { id: true },
+  });
+  const isReply = chat ? await chatHasIncoming(chat.id) : false;
+
+  // 4. onlyReplies tumbler — пишем ТОЛЬКО тем кто написал первый
+  if (inst.onlyReplies && !isReply) {
+    return { ok: false, reason: "onlyReplies=true and recipient never wrote first" };
+  }
+
+  // 5. Warm-up for new numbers — limits ONLY cold outreach, replies always OK
+  if (!isReply) {
+    const limit = warmupLimit(inst.connectedAt);
+    if (limit !== null) {
+      const today = await countTodayColdOutreach(args.instanceId);
+      if (today >= limit) {
+        return { ok: false, reason: `warm-up limit reached (${today}/${limit} cold msgs today)` };
+      }
+    }
+  }
+
+  return { ok: true };
+}
 
 async function processOne(jobId: string) {
   const job = await prisma.outboundJob.findUnique({
@@ -18,10 +85,22 @@ async function processOne(jobId: string) {
     return;
   }
 
-  // Rate limit per instance
+  // Anti-ban preflight
+  const check = await preflight({ instanceId: job.instanceId, to: job.to });
+  if (!check.ok) {
+    console.warn(`[out] job ${job.id} skipped: ${check.reason}`);
+    await prisma.outboundJob.update({
+      where: { id: job.id },
+      data: { status: "FAILED", errorMsg: check.reason, processedAt: new Date() },
+    });
+    return;
+  }
+
+  // Soft rate limit per instance — invisible to humans, hard for spam detection
   const last = lastSentAt.get(job.instanceId) ?? 0;
   const wait = MIN_GAP_MS - (Date.now() - last);
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait + Math.random() * 600));
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait + Math.random() * JITTER_MS));
+  else await new Promise((r) => setTimeout(r, Math.random() * JITTER_MS / 2)); // tiny jitter even when not throttled
 
   try {
     const payload = job.payload as Payload;

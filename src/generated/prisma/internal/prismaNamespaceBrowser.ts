@@ -59,6 +59,7 @@ export const ModelName = {
   TenantSession: 'TenantSession',
   WorkerNode: 'WorkerNode',
   WAInstance: 'WAInstance',
+  BlockedContact: 'BlockedContact',
   Chat: 'Chat',
   Message: 'Message',
   OutboundJob: 'OutboundJob',
@@ -208,11 +209,27 @@ export const WAInstanceScalarFieldEnum = {
   aiEscalateOnHandoff: 'aiEscalateOnHandoff',
   aiHandoffMessage: 'aiHandoffMessage',
   aiKnowledgeBase: 'aiKnowledgeBase',
+  connectedAt: 'connectedAt',
+  onlyReplies: 'onlyReplies',
+  bulkPausedUntil: 'bulkPausedUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type WAInstanceScalarFieldEnum = (typeof WAInstanceScalarFieldEnum)[keyof typeof WAInstanceScalarFieldEnum]
+
+
+export const BlockedContactScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  remoteJid: 'remoteJid',
+  phoneNumber: 'phoneNumber',
+  reason: 'reason',
+  trigger: 'trigger',
+  createdAt: 'createdAt'
+} as const
+
+export type BlockedContactScalarFieldEnum = (typeof BlockedContactScalarFieldEnum)[keyof typeof BlockedContactScalarFieldEnum]
 
 
 export const ChatScalarFieldEnum = {

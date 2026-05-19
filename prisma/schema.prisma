@@ -178,14 +178,40 @@ model WAInstance {
 
   // Knowledge base — injected into system prompt
   aiKnowledgeBase  String?   // free-form FAQ / price list / company info (max ~10000 chars)
+
+  // Anti-ban
+  connectedAt      DateTime?  // first time WA went CONNECTED — used to compute warm-up window
+  onlyReplies      Boolean   @default(false) // safe mode: бот пишет только тем кто написал первый
+  bulkPausedUntil  DateTime? // если детектор остановил массовую рассылку — когда снова можно
   chats         Chat[]
   messages      Message[]
   jobs          OutboundJob[]
+  blockedContacts BlockedContact[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   @@index([tenantId])
   @@index([workerNodeId, status])
+}
+
+// DNC list — кому больше нельзя писать (Do Not Contact)
+model BlockedContact {
+  id          String   @id @default(cuid())
+  instanceId  String
+  instance    WAInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  remoteJid   String
+  phoneNumber String?
+  reason      BlockedReason @default(USER_REQUESTED)
+  trigger     String?  // matched phrase from incoming msg (для отладки)
+  createdAt   DateTime @default(now())
+
+  @@unique([instanceId, remoteJid])
+  @@index([instanceId])
+}
+
+enum BlockedReason {
+  USER_REQUESTED  // получатель сам попросил не писать (стоп/отпишите)
+  ADMIN_BLOCKED   // владелец сервиса вручную добавил
 }
 
 model Chat {

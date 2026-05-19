@@ -20,6 +20,14 @@ export const SessionStatus = {
 export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
 
 
+export const BlockedReason = {
+  USER_REQUESTED: 'USER_REQUESTED',
+  ADMIN_BLOCKED: 'ADMIN_BLOCKED'
+} as const
+
+export type BlockedReason = (typeof BlockedReason)[keyof typeof BlockedReason]
+
+
 export const Plan = {
   FREE: 'FREE',
   TRIAL: 'TRIAL',

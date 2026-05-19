@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Bot, Smartphone, MessageSquare, FlaskConical } from "lucide-react";
+import { Bot, Smartphone, MessageSquare, FlaskConical, Shield } from "lucide-react";
 
-type Tab = "connect" | "bot" | "test" | "chats";
+type Tab = "connect" | "bot" | "test" | "chats" | "safety";
 
 const tabs: { id: Tab; label: string; icon: typeof Bot; href: (id: string) => string }[] = [
   { id: "connect", label: "Подключение", icon: Smartphone, href: (id) => `/cabinet/wa/instances/${id}` },
   { id: "bot", label: "AI-бот", icon: Bot, href: (id) => `/cabinet/wa/instances/${id}/bot` },
   { id: "test", label: "Тест-чат", icon: FlaskConical, href: (id) => `/cabinet/wa/instances/${id}/test` },
   { id: "chats", label: "Переписки", icon: MessageSquare, href: (id) => `/cabinet/wa/instances/${id}/chats` },
+  { id: "safety", label: "Защита", icon: Shield, href: (id) => `/cabinet/wa/instances/${id}/safety` },
 ];
 
 export function InstanceTabs({ id, active }: { id: string; active: Tab }) {

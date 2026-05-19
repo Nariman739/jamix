@@ -58,6 +58,11 @@ export type WorkerNode = Prisma.WorkerNodeModel
  */
 export type WAInstance = Prisma.WAInstanceModel
 /**
+ * Model BlockedContact
+ * 
+ */
+export type BlockedContact = Prisma.BlockedContactModel
+/**
  * Model Chat
  * 
  */

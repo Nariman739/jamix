@@ -65,6 +65,9 @@ export type WAInstanceMinAggregateOutputType = {
   aiEscalateOnHandoff: boolean | null
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  connectedAt: Date | null
+  onlyReplies: boolean | null
+  bulkPausedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -96,6 +99,9 @@ export type WAInstanceMaxAggregateOutputType = {
   aiEscalateOnHandoff: boolean | null
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  connectedAt: Date | null
+  onlyReplies: boolean | null
+  bulkPausedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -128,6 +134,9 @@ export type WAInstanceCountAggregateOutputType = {
   aiEscalateOnHandoff: number
   aiHandoffMessage: number
   aiKnowledgeBase: number
+  connectedAt: number
+  onlyReplies: number
+  bulkPausedUntil: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -173,6 +182,9 @@ export type WAInstanceMinAggregateInputType = {
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  connectedAt?: true
+  onlyReplies?: true
+  bulkPausedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -204,6 +216,9 @@ export type WAInstanceMaxAggregateInputType = {
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  connectedAt?: true
+  onlyReplies?: true
+  bulkPausedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -236,6 +251,9 @@ export type WAInstanceCountAggregateInputType = {
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  connectedAt?: true
+  onlyReplies?: true
+  bulkPausedUntil?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -355,6 +373,9 @@ export type WAInstanceGroupByOutputType = {
   aiEscalateOnHandoff: boolean
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  connectedAt: Date | null
+  onlyReplies: boolean
+  bulkPausedUntil: Date | null
   createdAt: Date
   updatedAt: Date
   _count: WAInstanceCountAggregateOutputType | null
@@ -410,6 +431,9 @@ export type WAInstanceWhereInput = {
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
+  onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
+  bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -417,6 +441,7 @@ export type WAInstanceWhereInput = {
   chats?: Prisma.ChatListRelationFilter
   messages?: Prisma.MessageListRelationFilter
   jobs?: Prisma.OutboundJobListRelationFilter
+  blockedContacts?: Prisma.BlockedContactListRelationFilter
 }
 
 export type WAInstanceOrderByWithRelationInput = {
@@ -447,6 +472,9 @@ export type WAInstanceOrderByWithRelationInput = {
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  onlyReplies?: Prisma.SortOrder
+  bulkPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -454,6 +482,7 @@ export type WAInstanceOrderByWithRelationInput = {
   chats?: Prisma.ChatOrderByRelationAggregateInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
   jobs?: Prisma.OutboundJobOrderByRelationAggregateInput
+  blockedContacts?: Prisma.BlockedContactOrderByRelationAggregateInput
 }
 
 export type WAInstanceWhereUniqueInput = Prisma.AtLeast<{
@@ -487,6 +516,9 @@ export type WAInstanceWhereUniqueInput = Prisma.AtLeast<{
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
+  onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
+  bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -494,6 +526,7 @@ export type WAInstanceWhereUniqueInput = Prisma.AtLeast<{
   chats?: Prisma.ChatListRelationFilter
   messages?: Prisma.MessageListRelationFilter
   jobs?: Prisma.OutboundJobListRelationFilter
+  blockedContacts?: Prisma.BlockedContactListRelationFilter
 }, "id">
 
 export type WAInstanceOrderByWithAggregationInput = {
@@ -524,6 +557,9 @@ export type WAInstanceOrderByWithAggregationInput = {
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  onlyReplies?: Prisma.SortOrder
+  bulkPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WAInstanceCountOrderByAggregateInput
@@ -564,6 +600,9 @@ export type WAInstanceScalarWhereWithAggregatesInput = {
   aiEscalateOnHandoff?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
+  connectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WAInstance"> | Date | string | null
+  onlyReplies?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
+  bulkPausedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"WAInstance"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WAInstance"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"WAInstance"> | Date | string
 }
@@ -594,6 +633,9 @@ export type WAInstanceCreateInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
@@ -601,6 +643,7 @@ export type WAInstanceCreateInput = {
   chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateInput = {
@@ -631,11 +674,15 @@ export type WAInstanceUncheckedCreateInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUpdateInput = {
@@ -664,6 +711,9 @@ export type WAInstanceUpdateInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
@@ -671,6 +721,7 @@ export type WAInstanceUpdateInput = {
   chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateInput = {
@@ -701,11 +752,15 @@ export type WAInstanceUncheckedUpdateInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceCreateManyInput = {
@@ -736,6 +791,9 @@ export type WAInstanceCreateManyInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -766,6 +824,9 @@ export type WAInstanceUpdateManyMutationInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -798,6 +859,9 @@ export type WAInstanceUncheckedUpdateManyInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -848,6 +912,9 @@ export type WAInstanceCountOrderByAggregateInput = {
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  connectedAt?: Prisma.SortOrder
+  onlyReplies?: Prisma.SortOrder
+  bulkPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -885,6 +952,9 @@ export type WAInstanceMaxOrderByAggregateInput = {
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  connectedAt?: Prisma.SortOrder
+  onlyReplies?: Prisma.SortOrder
+  bulkPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -916,6 +986,9 @@ export type WAInstanceMinOrderByAggregateInput = {
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  connectedAt?: Prisma.SortOrder
+  onlyReplies?: Prisma.SortOrder
+  bulkPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1032,6 +1105,20 @@ export type WAInstanceUpdateaiPausedChatsInput = {
   push?: string | string[]
 }
 
+export type WAInstanceCreateNestedOneWithoutBlockedContactsInput = {
+  create?: Prisma.XOR<Prisma.WAInstanceCreateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedCreateWithoutBlockedContactsInput>
+  connectOrCreate?: Prisma.WAInstanceCreateOrConnectWithoutBlockedContactsInput
+  connect?: Prisma.WAInstanceWhereUniqueInput
+}
+
+export type WAInstanceUpdateOneRequiredWithoutBlockedContactsNestedInput = {
+  create?: Prisma.XOR<Prisma.WAInstanceCreateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedCreateWithoutBlockedContactsInput>
+  connectOrCreate?: Prisma.WAInstanceCreateOrConnectWithoutBlockedContactsInput
+  upsert?: Prisma.WAInstanceUpsertWithoutBlockedContactsInput
+  connect?: Prisma.WAInstanceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WAInstanceUpdateToOneWithWhereWithoutBlockedContactsInput, Prisma.WAInstanceUpdateWithoutBlockedContactsInput>, Prisma.WAInstanceUncheckedUpdateWithoutBlockedContactsInput>
+}
+
 export type WAInstanceCreateNestedOneWithoutChatsInput = {
   create?: Prisma.XOR<Prisma.WAInstanceCreateWithoutChatsInput, Prisma.WAInstanceUncheckedCreateWithoutChatsInput>
   connectOrCreate?: Prisma.WAInstanceCreateOrConnectWithoutChatsInput
@@ -1100,12 +1187,16 @@ export type WAInstanceCreateWithoutTenantInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workerNode?: Prisma.WorkerNodeCreateNestedOneWithoutInstancesInput
   chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateWithoutTenantInput = {
@@ -1135,11 +1226,15 @@ export type WAInstanceUncheckedCreateWithoutTenantInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceCreateOrConnectWithoutTenantInput = {
@@ -1199,6 +1294,9 @@ export type WAInstanceScalarWhereInput = {
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
+  onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
+  bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WAInstance"> | Date | string
 }
@@ -1229,12 +1327,16 @@ export type WAInstanceCreateWithoutWorkerNodeInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
   chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateWithoutWorkerNodeInput = {
@@ -1264,11 +1366,15 @@ export type WAInstanceUncheckedCreateWithoutWorkerNodeInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceCreateOrConnectWithoutWorkerNodeInput = {
@@ -1297,6 +1403,174 @@ export type WAInstanceUpdateManyWithWhereWithoutWorkerNodeInput = {
   data: Prisma.XOR<Prisma.WAInstanceUpdateManyMutationInput, Prisma.WAInstanceUncheckedUpdateManyWithoutWorkerNodeInput>
 }
 
+export type WAInstanceCreateWithoutBlockedContactsInput = {
+  id?: string
+  label?: string | null
+  phoneNumber?: string | null
+  status?: $Enums.WAStatus
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  sessionBlob?: runtime.Bytes | null
+  qrCode?: string | null
+  qrExpiresAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  bannedAt?: Date | string | null
+  aiEnabled?: boolean
+  aiModel?: string
+  aiSystemPrompt?: string | null
+  aiBusinessName?: string | null
+  aiGreeting?: string | null
+  aiMaxTurns?: number
+  aiOnlyDuringHrs?: boolean
+  aiWorkStartHr?: number | null
+  aiWorkEndHr?: number | null
+  aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
+  aiEscalateOnHotLead?: boolean
+  aiEscalateOnHandoff?: boolean
+  aiHandoffMessage?: string | null
+  aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
+  workerNode?: Prisma.WorkerNodeCreateNestedOneWithoutInstancesInput
+  chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
+  messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
+  jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+}
+
+export type WAInstanceUncheckedCreateWithoutBlockedContactsInput = {
+  id?: string
+  tenantId: string
+  label?: string | null
+  phoneNumber?: string | null
+  status?: $Enums.WAStatus
+  workerNodeId?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  sessionBlob?: runtime.Bytes | null
+  qrCode?: string | null
+  qrExpiresAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  bannedAt?: Date | string | null
+  aiEnabled?: boolean
+  aiModel?: string
+  aiSystemPrompt?: string | null
+  aiBusinessName?: string | null
+  aiGreeting?: string | null
+  aiMaxTurns?: number
+  aiOnlyDuringHrs?: boolean
+  aiWorkStartHr?: number | null
+  aiWorkEndHr?: number | null
+  aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
+  aiEscalateOnHotLead?: boolean
+  aiEscalateOnHandoff?: boolean
+  aiHandoffMessage?: string | null
+  aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
+  jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+}
+
+export type WAInstanceCreateOrConnectWithoutBlockedContactsInput = {
+  where: Prisma.WAInstanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WAInstanceCreateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedCreateWithoutBlockedContactsInput>
+}
+
+export type WAInstanceUpsertWithoutBlockedContactsInput = {
+  update: Prisma.XOR<Prisma.WAInstanceUpdateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedUpdateWithoutBlockedContactsInput>
+  create: Prisma.XOR<Prisma.WAInstanceCreateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedCreateWithoutBlockedContactsInput>
+  where?: Prisma.WAInstanceWhereInput
+}
+
+export type WAInstanceUpdateToOneWithWhereWithoutBlockedContactsInput = {
+  where?: Prisma.WAInstanceWhereInput
+  data: Prisma.XOR<Prisma.WAInstanceUpdateWithoutBlockedContactsInput, Prisma.WAInstanceUncheckedUpdateWithoutBlockedContactsInput>
+}
+
+export type WAInstanceUpdateWithoutBlockedContactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumWAStatusFieldUpdateOperationsInput | $Enums.WAStatus
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionBlob?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bannedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiModel?: Prisma.StringFieldUpdateOperationsInput | string
+  aiSystemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiBusinessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiGreeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiMaxTurns?: Prisma.IntFieldUpdateOperationsInput | number
+  aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
+  aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
+  workerNode?: Prisma.WorkerNodeUpdateOneWithoutInstancesNestedInput
+  chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
+  jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+}
+
+export type WAInstanceUncheckedUpdateWithoutBlockedContactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumWAStatusFieldUpdateOperationsInput | $Enums.WAStatus
+  workerNodeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionBlob?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bannedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiModel?: Prisma.StringFieldUpdateOperationsInput | string
+  aiSystemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiBusinessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiGreeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiMaxTurns?: Prisma.IntFieldUpdateOperationsInput | number
+  aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
+  aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
+  jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+}
+
 export type WAInstanceCreateWithoutChatsInput = {
   id?: string
   label?: string | null
@@ -1323,12 +1597,16 @@ export type WAInstanceCreateWithoutChatsInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
   workerNode?: Prisma.WorkerNodeCreateNestedOneWithoutInstancesInput
   messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateWithoutChatsInput = {
@@ -1359,10 +1637,14 @@ export type WAInstanceUncheckedCreateWithoutChatsInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceCreateOrConnectWithoutChatsInput = {
@@ -1407,12 +1689,16 @@ export type WAInstanceUpdateWithoutChatsInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
   workerNode?: Prisma.WorkerNodeUpdateOneWithoutInstancesNestedInput
   messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateWithoutChatsInput = {
@@ -1443,10 +1729,14 @@ export type WAInstanceUncheckedUpdateWithoutChatsInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceCreateWithoutMessagesInput = {
@@ -1475,12 +1765,16 @@ export type WAInstanceCreateWithoutMessagesInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
   workerNode?: Prisma.WorkerNodeCreateNestedOneWithoutInstancesInput
   chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateWithoutMessagesInput = {
@@ -1511,10 +1805,14 @@ export type WAInstanceUncheckedCreateWithoutMessagesInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
   jobs?: Prisma.OutboundJobUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceCreateOrConnectWithoutMessagesInput = {
@@ -1559,12 +1857,16 @@ export type WAInstanceUpdateWithoutMessagesInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
   workerNode?: Prisma.WorkerNodeUpdateOneWithoutInstancesNestedInput
   chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateWithoutMessagesInput = {
@@ -1595,10 +1897,14 @@ export type WAInstanceUncheckedUpdateWithoutMessagesInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceCreateWithoutJobsInput = {
@@ -1627,12 +1933,16 @@ export type WAInstanceCreateWithoutJobsInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInstancesInput
   workerNode?: Prisma.WorkerNodeCreateNestedOneWithoutInstancesInput
   chats?: Prisma.ChatCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceUncheckedCreateWithoutJobsInput = {
@@ -1663,10 +1973,14 @@ export type WAInstanceUncheckedCreateWithoutJobsInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   chats?: Prisma.ChatUncheckedCreateNestedManyWithoutInstanceInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutInstanceInput
+  blockedContacts?: Prisma.BlockedContactUncheckedCreateNestedManyWithoutInstanceInput
 }
 
 export type WAInstanceCreateOrConnectWithoutJobsInput = {
@@ -1711,12 +2025,16 @@ export type WAInstanceUpdateWithoutJobsInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
   workerNode?: Prisma.WorkerNodeUpdateOneWithoutInstancesNestedInput
   chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateWithoutJobsInput = {
@@ -1747,10 +2065,14 @@ export type WAInstanceUncheckedUpdateWithoutJobsInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceCreateManyTenantInput = {
@@ -1780,6 +2102,9 @@ export type WAInstanceCreateManyTenantInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1810,12 +2135,16 @@ export type WAInstanceUpdateWithoutTenantInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workerNode?: Prisma.WorkerNodeUpdateOneWithoutInstancesNestedInput
   chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateWithoutTenantInput = {
@@ -1845,11 +2174,15 @@ export type WAInstanceUncheckedUpdateWithoutTenantInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateManyWithoutTenantInput = {
@@ -1879,6 +2212,9 @@ export type WAInstanceUncheckedUpdateManyWithoutTenantInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1910,6 +2246,9 @@ export type WAInstanceCreateManyWorkerNodeInput = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  connectedAt?: Date | string | null
+  onlyReplies?: boolean
+  bulkPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1940,12 +2279,16 @@ export type WAInstanceUpdateWithoutWorkerNodeInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInstancesNestedInput
   chats?: Prisma.ChatUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateWithoutWorkerNodeInput = {
@@ -1975,11 +2318,15 @@ export type WAInstanceUncheckedUpdateWithoutWorkerNodeInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chats?: Prisma.ChatUncheckedUpdateManyWithoutInstanceNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutInstanceNestedInput
   jobs?: Prisma.OutboundJobUncheckedUpdateManyWithoutInstanceNestedInput
+  blockedContacts?: Prisma.BlockedContactUncheckedUpdateManyWithoutInstanceNestedInput
 }
 
 export type WAInstanceUncheckedUpdateManyWithoutWorkerNodeInput = {
@@ -2009,6 +2356,9 @@ export type WAInstanceUncheckedUpdateManyWithoutWorkerNodeInput = {
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2022,12 +2372,14 @@ export type WAInstanceCountOutputType = {
   chats: number
   messages: number
   jobs: number
+  blockedContacts: number
 }
 
 export type WAInstanceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chats?: boolean | WAInstanceCountOutputTypeCountChatsArgs
   messages?: boolean | WAInstanceCountOutputTypeCountMessagesArgs
   jobs?: boolean | WAInstanceCountOutputTypeCountJobsArgs
+  blockedContacts?: boolean | WAInstanceCountOutputTypeCountBlockedContactsArgs
 }
 
 /**
@@ -2061,6 +2413,13 @@ export type WAInstanceCountOutputTypeCountJobsArgs<ExtArgs extends runtime.Types
   where?: Prisma.OutboundJobWhereInput
 }
 
+/**
+ * WAInstanceCountOutputType without action
+ */
+export type WAInstanceCountOutputTypeCountBlockedContactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BlockedContactWhereInput
+}
+
 
 export type WAInstanceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2090,6 +2449,9 @@ export type WAInstanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  connectedAt?: boolean
+  onlyReplies?: boolean
+  bulkPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2097,6 +2459,7 @@ export type WAInstanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   chats?: boolean | Prisma.WAInstance$chatsArgs<ExtArgs>
   messages?: boolean | Prisma.WAInstance$messagesArgs<ExtArgs>
   jobs?: boolean | Prisma.WAInstance$jobsArgs<ExtArgs>
+  blockedContacts?: boolean | Prisma.WAInstance$blockedContactsArgs<ExtArgs>
   _count?: boolean | Prisma.WAInstanceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["wAInstance"]>
 
@@ -2128,6 +2491,9 @@ export type WAInstanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  connectedAt?: boolean
+  onlyReplies?: boolean
+  bulkPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2162,6 +2528,9 @@ export type WAInstanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  connectedAt?: boolean
+  onlyReplies?: boolean
+  bulkPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2196,17 +2565,21 @@ export type WAInstanceSelectScalar = {
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  connectedAt?: boolean
+  onlyReplies?: boolean
+  bulkPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WAInstanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "label" | "phoneNumber" | "status" | "workerNodeId" | "webhookUrl" | "webhookSecret" | "sessionBlob" | "qrCode" | "qrExpiresAt" | "lastSeenAt" | "bannedAt" | "aiEnabled" | "aiModel" | "aiSystemPrompt" | "aiBusinessName" | "aiGreeting" | "aiMaxTurns" | "aiOnlyDuringHrs" | "aiWorkStartHr" | "aiWorkEndHr" | "aiPausedChats" | "aiEscalateOnHotLead" | "aiEscalateOnHandoff" | "aiHandoffMessage" | "aiKnowledgeBase" | "createdAt" | "updatedAt", ExtArgs["result"]["wAInstance"]>
+export type WAInstanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "label" | "phoneNumber" | "status" | "workerNodeId" | "webhookUrl" | "webhookSecret" | "sessionBlob" | "qrCode" | "qrExpiresAt" | "lastSeenAt" | "bannedAt" | "aiEnabled" | "aiModel" | "aiSystemPrompt" | "aiBusinessName" | "aiGreeting" | "aiMaxTurns" | "aiOnlyDuringHrs" | "aiWorkStartHr" | "aiWorkEndHr" | "aiPausedChats" | "aiEscalateOnHotLead" | "aiEscalateOnHandoff" | "aiHandoffMessage" | "aiKnowledgeBase" | "connectedAt" | "onlyReplies" | "bulkPausedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["wAInstance"]>
 export type WAInstanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   workerNode?: boolean | Prisma.WAInstance$workerNodeArgs<ExtArgs>
   chats?: boolean | Prisma.WAInstance$chatsArgs<ExtArgs>
   messages?: boolean | Prisma.WAInstance$messagesArgs<ExtArgs>
   jobs?: boolean | Prisma.WAInstance$jobsArgs<ExtArgs>
+  blockedContacts?: boolean | Prisma.WAInstance$blockedContactsArgs<ExtArgs>
   _count?: boolean | Prisma.WAInstanceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WAInstanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2226,6 +2599,7 @@ export type $WAInstancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     chats: Prisma.$ChatPayload<ExtArgs>[]
     messages: Prisma.$MessagePayload<ExtArgs>[]
     jobs: Prisma.$OutboundJobPayload<ExtArgs>[]
+    blockedContacts: Prisma.$BlockedContactPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2255,6 +2629,9 @@ export type $WAInstancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     aiEscalateOnHandoff: boolean
     aiHandoffMessage: string | null
     aiKnowledgeBase: string | null
+    connectedAt: Date | null
+    onlyReplies: boolean
+    bulkPausedUntil: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["wAInstance"]>
@@ -2656,6 +3033,7 @@ export interface Prisma__WAInstanceClient<T, Null = never, ExtArgs extends runti
   chats<T extends Prisma.WAInstance$chatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WAInstance$chatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   messages<T extends Prisma.WAInstance$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WAInstance$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   jobs<T extends Prisma.WAInstance$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WAInstance$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutboundJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  blockedContacts<T extends Prisma.WAInstance$blockedContactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WAInstance$blockedContactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockedContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2712,6 +3090,9 @@ export interface WAInstanceFieldRefs {
   readonly aiEscalateOnHandoff: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly aiHandoffMessage: Prisma.FieldRef<"WAInstance", 'String'>
   readonly aiKnowledgeBase: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly connectedAt: Prisma.FieldRef<"WAInstance", 'DateTime'>
+  readonly onlyReplies: Prisma.FieldRef<"WAInstance", 'Boolean'>
+  readonly bulkPausedUntil: Prisma.FieldRef<"WAInstance", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"WAInstance", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"WAInstance", 'DateTime'>
 }
@@ -3203,6 +3584,30 @@ export type WAInstance$jobsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.OutboundJobScalarFieldEnum | Prisma.OutboundJobScalarFieldEnum[]
+}
+
+/**
+ * WAInstance.blockedContacts
+ */
+export type WAInstance$blockedContactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BlockedContact
+   */
+  select?: Prisma.BlockedContactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BlockedContact
+   */
+  omit?: Prisma.BlockedContactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BlockedContactInclude<ExtArgs> | null
+  where?: Prisma.BlockedContactWhereInput
+  orderBy?: Prisma.BlockedContactOrderByWithRelationInput | Prisma.BlockedContactOrderByWithRelationInput[]
+  cursor?: Prisma.BlockedContactWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BlockedContactScalarFieldEnum | Prisma.BlockedContactScalarFieldEnum[]
 }
 
 /**

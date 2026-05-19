@@ -10,6 +10,8 @@ import { prisma } from "./db";
 import { makeAuthState } from "./auth-state";
 import { generateAiReply, shouldAiReply } from "./ai-reply";
 import { dispatchWebhook } from "./webhook-dispatcher";
+import { detectDncRequest, blockContact } from "./antiban";
+import { sendTelegram } from "./telegram";
 
 const logger = pino({ level: "silent" });
 const QR_TTL_SECONDS = 60;
@@ -87,6 +89,11 @@ export async function startInstance(instanceId: string): Promise<void> {
     if (connection === "open") {
       const me = sock.user;
       const phone = me?.id?.split(":")[0]?.split("@")[0] ?? null;
+      // Set connectedAt only on first ever connect, so warm-up window starts once
+      const existing = await prisma.wAInstance.findUnique({
+        where: { id: instanceId },
+        select: { connectedAt: true },
+      });
       await prisma.wAInstance.update({
         where: { id: instanceId },
         data: {
@@ -95,6 +102,7 @@ export async function startInstance(instanceId: string): Promise<void> {
           qrCode: null,
           qrExpiresAt: null,
           lastSeenAt: new Date(),
+          connectedAt: existing?.connectedAt ?? new Date(),
         },
       });
       console.log(`[wa] ${instanceId} connected as ${me?.id}`);
@@ -109,15 +117,47 @@ export async function startInstance(instanceId: string): Promise<void> {
       sockets.delete(instanceId);
 
       if (loggedOut) {
+        const inst = await prisma.wAInstance.findUnique({
+          where: { id: instanceId },
+          select: {
+            label: true,
+            phoneNumber: true,
+            tenant: { select: { name: true, telegramChatId: true } },
+          },
+        });
         await prisma.wAInstance.update({
           where: { id: instanceId },
           data: {
-            status: "LOGGED_OUT",
+            status: "BANNED",
+            bannedAt: new Date(),
             sessionBlob: null,
             qrCode: null,
             qrExpiresAt: null,
           },
         });
+        const label = inst?.label || inst?.phoneNumber || instanceId;
+        // Alert tenant
+        if (inst?.tenant.telegramChatId) {
+          await sendTelegram({
+            chatId: inst.tenant.telegramChatId,
+            text:
+              `🚫 <b>Номер отключен от WhatsApp</b>\n\n` +
+              `${escapeHtml(label)} больше не подключен. Возможные причины: вышли из WhatsApp Web с телефона / WhatsApp заблокировал номер.\n\n` +
+              `Подключите новый QR в кабинете Jamiwa.`,
+          }).catch(() => {});
+        }
+        // Alert admin (Nariman)
+        const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID;
+        if (adminChat) {
+          await sendTelegram({
+            chatId: adminChat,
+            text:
+              `🚫 <b>Instance BANNED</b>\n\n` +
+              `Tenant: ${escapeHtml(inst?.tenant.name || "?")}\n` +
+              `Instance: ${escapeHtml(label)}\n` +
+              `code=${code}`,
+          }).catch(() => {});
+        }
         return;
       }
 
@@ -187,6 +227,30 @@ export async function startInstance(instanceId: string): Promise<void> {
 
       console.log(`[in] ${instanceId} ${remoteJid}: ${text.slice(0, 60)}`);
 
+      // DNC auto-detect — если получатель сам просит не писать, заносим в Block List
+      const dncTrigger = detectDncRequest(text);
+      if (dncTrigger) {
+        await blockContact({
+          instanceId,
+          remoteJid,
+          phoneNumber,
+          trigger: dncTrigger,
+        });
+        // Pause AI in this chat too so мы не пытаемся ответить
+        const cur = await prisma.wAInstance.findUnique({
+          where: { id: instanceId },
+          select: { aiPausedChats: true },
+        });
+        if (cur) {
+          const set = new Set(cur.aiPausedChats);
+          set.add(remoteJid);
+          await prisma.wAInstance.update({
+            where: { id: instanceId },
+            data: { aiPausedChats: [...set] },
+          });
+        }
+      }
+
       // Fire webhook if configured
       const instWithHook = await prisma.wAInstance.findUnique({
         where: { id: instanceId },
@@ -208,7 +272,8 @@ export async function startInstance(instanceId: string): Promise<void> {
         });
       }
 
-      // AI auto-reply
+      // AI auto-reply (skip if DNC was just triggered — already paused above)
+      if (dncTrigger) continue;
       const fresh = await prisma.wAInstance.findUnique({ where: { id: instanceId } });
       if (fresh && shouldAiReply(fresh, remoteJid)) {
         const delay = 1500 + Math.random() * 1500;
@@ -282,3 +347,7 @@ export function shutdownAll() {
 
 // Silence unused import warning — `proto` is re-exported for downstream consumers.
 export { proto };
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}

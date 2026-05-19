@@ -406,6 +406,23 @@ export type BytesNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBytesNullableFilter<$PrismaModel>
 }
 
+export type EnumBlockedReasonFilter<$PrismaModel = never> = {
+  equals?: $Enums.BlockedReason | Prisma.EnumBlockedReasonFieldRefInput<$PrismaModel>
+  in?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel> | $Enums.BlockedReason
+}
+
+export type EnumBlockedReasonWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BlockedReason | Prisma.EnumBlockedReasonFieldRefInput<$PrismaModel>
+  in?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBlockedReasonWithAggregatesFilter<$PrismaModel> | $Enums.BlockedReason
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel>
+}
+
 export type EnumMediaTypeNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.MediaType | Prisma.EnumMediaTypeFieldRefInput<$PrismaModel> | null
   in?: $Enums.MediaType[] | Prisma.ListEnumMediaTypeFieldRefInput<$PrismaModel> | null
@@ -840,6 +857,23 @@ export type NestedBytesNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedBytesNullableFilter<$PrismaModel>
   _max?: Prisma.NestedBytesNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumBlockedReasonFilter<$PrismaModel = never> = {
+  equals?: $Enums.BlockedReason | Prisma.EnumBlockedReasonFieldRefInput<$PrismaModel>
+  in?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel> | $Enums.BlockedReason
+}
+
+export type NestedEnumBlockedReasonWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BlockedReason | Prisma.EnumBlockedReasonFieldRefInput<$PrismaModel>
+  in?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BlockedReason[] | Prisma.ListEnumBlockedReasonFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBlockedReasonWithAggregatesFilter<$PrismaModel> | $Enums.BlockedReason
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBlockedReasonFilter<$PrismaModel>
 }
 
 export type NestedEnumMediaTypeNullableFilter<$PrismaModel = never> = {

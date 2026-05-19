@@ -3,10 +3,12 @@ import os from "os";
 import { prisma } from "./db";
 import { startInstance, stopInstance, shutdownAll, isManaged } from "./instance-manager";
 import { tickOutbound } from "./outbound-handler";
+import { tickBulkDetection } from "./antiban";
 
 const NODE_KEY = process.env.WORKER_NODE_KEY || os.hostname();
 const POLL_MS = 1500;
 const HEARTBEAT_MS = 30_000;
+const BULK_DETECT_MS = 60_000;
 
 async function registerNode() {
   const node = await prisma.workerNode.upsert({
@@ -112,12 +114,17 @@ async function main() {
 
   const tickInterval = setInterval(tick, POLL_MS);
   const heartbeatInterval = setInterval(() => heartbeat(nodeId).catch(() => {}), HEARTBEAT_MS);
+  const bulkInterval = setInterval(
+    () => tickBulkDetection().catch((e) => console.error("[bulk] tick error:", formatError(e))),
+    BULK_DETECT_MS,
+  );
   await tick();
 
   const shutdown = async (signal: string) => {
     console.log(`[worker] ${signal} received, shutting down...`);
     clearInterval(tickInterval);
     clearInterval(heartbeatInterval);
+    clearInterval(bulkInterval);
     shutdownAll();
     await prisma.workerNode.update({
       where: { id: nodeId },

@@ -392,6 +392,7 @@ export const ModelName = {
   TenantSession: 'TenantSession',
   WorkerNode: 'WorkerNode',
   WAInstance: 'WAInstance',
+  BlockedContact: 'BlockedContact',
   Chat: 'Chat',
   Message: 'Message',
   OutboundJob: 'OutboundJob',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "chatSession" | "adminUser" | "adminSession" | "tenant" | "tenantUser" | "tenantSession" | "workerNode" | "wAInstance" | "chat" | "message" | "outboundJob" | "payment"
+    modelProps: "chatSession" | "adminUser" | "adminSession" | "tenant" | "tenantUser" | "tenantSession" | "workerNode" | "wAInstance" | "blockedContact" | "chat" | "message" | "outboundJob" | "payment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1007,6 +1008,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BlockedContact: {
+      payload: Prisma.$BlockedContactPayload<ExtArgs>
+      fields: Prisma.BlockedContactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BlockedContactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BlockedContactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        findFirst: {
+          args: Prisma.BlockedContactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BlockedContactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        findMany: {
+          args: Prisma.BlockedContactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>[]
+        }
+        create: {
+          args: Prisma.BlockedContactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        createMany: {
+          args: Prisma.BlockedContactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BlockedContactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>[]
+        }
+        delete: {
+          args: Prisma.BlockedContactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        update: {
+          args: Prisma.BlockedContactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        deleteMany: {
+          args: Prisma.BlockedContactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BlockedContactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BlockedContactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>[]
+        }
+        upsert: {
+          args: Prisma.BlockedContactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockedContactPayload>
+        }
+        aggregate: {
+          args: Prisma.BlockedContactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBlockedContact>
+        }
+        groupBy: {
+          args: Prisma.BlockedContactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlockedContactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BlockedContactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlockedContactCountAggregateOutputType> | number
+        }
+      }
+    }
     Chat: {
       payload: Prisma.$ChatPayload<ExtArgs>
       fields: Prisma.ChatFieldRefs
@@ -1469,11 +1544,27 @@ export const WAInstanceScalarFieldEnum = {
   aiEscalateOnHandoff: 'aiEscalateOnHandoff',
   aiHandoffMessage: 'aiHandoffMessage',
   aiKnowledgeBase: 'aiKnowledgeBase',
+  connectedAt: 'connectedAt',
+  onlyReplies: 'onlyReplies',
+  bulkPausedUntil: 'bulkPausedUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type WAInstanceScalarFieldEnum = (typeof WAInstanceScalarFieldEnum)[keyof typeof WAInstanceScalarFieldEnum]
+
+
+export const BlockedContactScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  remoteJid: 'remoteJid',
+  phoneNumber: 'phoneNumber',
+  reason: 'reason',
+  trigger: 'trigger',
+  createdAt: 'createdAt'
+} as const
+
+export type BlockedContactScalarFieldEnum = (typeof BlockedContactScalarFieldEnum)[keyof typeof BlockedContactScalarFieldEnum]
 
 
 export const ChatScalarFieldEnum = {
@@ -1743,6 +1834,20 @@ export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
+ * Reference to a field of type 'BlockedReason'
+ */
+export type EnumBlockedReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BlockedReason'>
+    
+
+
+/**
+ * Reference to a field of type 'BlockedReason[]'
+ */
+export type ListEnumBlockedReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BlockedReason[]'>
+    
+
+
+/**
  * Reference to a field of type 'MediaType'
  */
 export type EnumMediaTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MediaType'>
@@ -1928,6 +2033,7 @@ export type GlobalOmitConfig = {
   tenantSession?: Prisma.TenantSessionOmit
   workerNode?: Prisma.WorkerNodeOmit
   wAInstance?: Prisma.WAInstanceOmit
+  blockedContact?: Prisma.BlockedContactOmit
   chat?: Prisma.ChatOmit
   message?: Prisma.MessageOmit
   outboundJob?: Prisma.OutboundJobOmit
