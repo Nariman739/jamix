@@ -306,16 +306,24 @@ export async function startInstance(instanceId: string): Promise<void> {
       if (dncTrigger) continue;
       const fresh = await prisma.wAInstance.findUnique({ where: { id: instanceId } });
       if (fresh && shouldAiReply(fresh, remoteJid)) {
-        const delay = 1500 + Math.random() * 1500;
-        setTimeout(async () => {
+        // Старт AI генерации немедленно (параллельно с минимальной паузой 600мс
+        // чтобы не выглядело как мгновенный бот). Outbound уже потом квантуется.
+        const minDelay = 600 + Math.random() * 400; // 0.6-1.0 сек
+        const start = Date.now();
+        (async () => {
           try {
-            const result = await generateAiReply({
+            const aiPromise = generateAiReply({
               inst: fresh,
               chatId: chat.id,
               remoteJid,
               fromPhone: phoneNumber,
               newUserMessage: text,
             });
+            const [result] = await Promise.all([
+              aiPromise,
+              new Promise((r) => setTimeout(r, minDelay)),
+            ]);
+            const elapsed = Date.now() - start;
             if (!result || !result.reply) return;
 
             await prisma.outboundJob.create({
@@ -326,6 +334,7 @@ export async function startInstance(instanceId: string): Promise<void> {
                 status: "QUEUED",
               },
             });
+            void elapsed;
             console.log(
               `[ai] ${instanceId} -> ${remoteJid}: ${result.reply.slice(0, 60)}${
                 result.escalate ? " [HOT]" : ""
@@ -334,7 +343,7 @@ export async function startInstance(instanceId: string): Promise<void> {
           } catch (e) {
             console.error(`[ai] reply failed:`, (e as Error).message);
           }
-        }, delay);
+        })();
       }
     }
   });

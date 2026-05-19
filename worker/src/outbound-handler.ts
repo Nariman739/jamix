@@ -7,8 +7,8 @@ import {
   chatHasIncoming,
 } from "./antiban";
 
-const MIN_GAP_MS = 1000; // soft rate limit — ~1 msg/sec on a given number
-const JITTER_MS = 1200; // random extra delay 0..1200ms — looks human
+const MIN_GAP_MS = 800; // soft rate limit — ~1 msg/0.8s on a given number
+const JITTER_MS = 500; // random extra delay 0..500ms — looks human without dragging
 const lastSentAt = new Map<string, number>();
 
 type Payload = { type: "text"; text: string };

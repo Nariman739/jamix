@@ -89,13 +89,13 @@ export function SetupAssistant({ existingInstanceId }: { existingInstanceId: str
   };
 
   return (
-    <div className="glass rounded-2xl overflow-hidden flex flex-col h-[600px]">
+    <div className="glass rounded-2xl overflow-hidden flex flex-col h-[calc(100vh-220px)] sm:h-[600px]">
       {/* Header */}
-      <header className="border-b border-border/40 px-4 py-3 flex items-center gap-2 bg-gradient-to-r from-brand-blue/10 to-transparent">
-        <div className="w-8 h-8 rounded-full bg-brand-blue/20 flex items-center justify-center">
+      <header className="border-b border-border/40 px-3 sm:px-4 py-3 flex items-center gap-2 bg-gradient-to-r from-brand-blue/10 to-transparent">
+        <div className="w-8 h-8 rounded-full bg-brand-blue/20 flex items-center justify-center shrink-0">
           <Sparkles size={14} className="text-brand-blue" />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="text-sm font-medium">Мастер настройки</div>
           <div className="text-[11px] text-muted-foreground">
             {config ? "Готово!" : loading ? "печатает..." : "задаст 5-7 вопросов"}
@@ -104,7 +104,7 @@ export function SetupAssistant({ existingInstanceId }: { existingInstanceId: str
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
         {messages.map((m, i) => (
           <div
             key={i}
