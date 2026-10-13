@@ -8,11 +8,8 @@ import { Boom } from "@hapi/boom";
 import pino from "pino";
 import { prisma } from "./db";
 import { makeAuthState } from "./auth-state";
-import { generateAiReply, shouldAiReply } from "./ai-reply";
-import { dispatchWebhook } from "./webhook-dispatcher";
-import { detectDncRequest, blockContact } from "./antiban";
-import { checkAiQuota } from "./quota";
 import { sendTelegram } from "./telegram";
+import { handleUpsert, rememberSentId } from "./inbound";
 
 // WA_LOG_LEVEL=info|debug включает лог Baileys (диагностика привязки); по умолчанию тихо.
 const logger = pino({ level: process.env.WA_LOG_LEVEL || "silent" });
@@ -23,7 +20,13 @@ interface Holder {
   closing: boolean;
   reachedServer: boolean; // был QR или open — значит сеть есть, цикл штатный
   flush: () => Promise<void>; // дописать отложенную сессию в базу
+  cancel: () => void; // отменить отложенную запись (после разлогина)
+  open: boolean; // connection === "open"
 }
+
+// Номера, у которых startInstance ещё не дошёл до sockets.set (между await'ами).
+// Без этого claim-цикл и таймер переподключения могли поднять второй сокет на те же ключи.
+const starting = new Set<string>();
 
 const sockets = new Map<string, Holder>();
 
@@ -35,7 +38,27 @@ const reconnectTimers = new Map<string, NodeJS.Timeout>();
 const reconnectFailures = new Map<string, number>();
 
 export function isManaged(instanceId: string) {
-  return sockets.has(instanceId) || reconnectTimers.has(instanceId);
+  return sockets.has(instanceId) || reconnectTimers.has(instanceId) || starting.has(instanceId);
+}
+
+/** Сокет реально открыт (connection === "open"), а не в процессе старта/переподключения. */
+export function isOnline(instanceId: string) {
+  const h = sockets.get(instanceId);
+  return !!h && h.open;
+}
+
+const VERSION_FETCH_TIMEOUT_MS = 5_000;
+/** Версия WA Web с апстрима; при таймауте — вшитая в пакет (Baileys сам подставит). */
+async function resolveWaVersion(): Promise<[number, number, number] | undefined> {
+  try {
+    const res = await Promise.race([
+      fetchLatestBaileysVersion(),
+      new Promise<null>((r) => setTimeout(() => r(null), VERSION_FETCH_TIMEOUT_MS)),
+    ]);
+    return res?.version as [number, number, number] | undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function scheduleReconnect(instanceId: string, reachedServer: boolean) {
@@ -54,7 +77,16 @@ function scheduleReconnect(instanceId: string, reachedServer: boolean) {
 }
 
 export async function startInstance(instanceId: string): Promise<void> {
-  if (sockets.has(instanceId)) return;
+  if (sockets.has(instanceId) || starting.has(instanceId)) return;
+  starting.add(instanceId);
+  try {
+    await startInstanceInner(instanceId);
+  } finally {
+    starting.delete(instanceId);
+  }
+}
+
+async function startInstanceInner(instanceId: string): Promise<void> {
   const pending = reconnectTimers.get(instanceId);
   if (pending) {
     clearTimeout(pending);
@@ -79,15 +111,17 @@ export async function startInstance(instanceId: string): Promise<void> {
     return;
   }
 
-  const { version } = await fetchLatestBaileysVersion();
+  const version = await resolveWaVersion();
 
   const sock = makeWASocket({
-    version,
+    ...(version ? { version } : {}),
     auth: auth.state,
     logger,
     printQRInTerminal: false,
     browser: ["Jamiwa", "Chrome", "1.0.0"],
     syncFullHistory: false,
+    // Иначе номер «онлайн» 24/7 и WhatsApp перестаёт слать push на телефон владельца
+    markOnlineOnConnect: false,
   });
 
   // Trap any unhandled WS errors so they never crash the worker
@@ -100,8 +134,8 @@ export async function startInstance(instanceId: string): Promise<void> {
     // ignore
   }
 
-  sockets.set(instanceId, { sock, closing: false, reachedServer: false, flush: auth.flush });
-  console.log(`[wa] ${instanceId} starting (Baileys ${version.join(".")})`);
+  sockets.set(instanceId, { sock, closing: false, reachedServer: false, open: false, flush: auth.flush, cancel: auth.cancel });
+  console.log(`[wa] ${instanceId} starting (WA ${version ? version.join(".") : "builtin"})`);
 
   sock.ev.on("creds.update", auth.saveCreds);
 
@@ -122,7 +156,10 @@ export async function startInstance(instanceId: string): Promise<void> {
 
     if (connection === "open") {
       const h = sockets.get(instanceId);
-      if (h) h.reachedServer = true;
+      if (h) {
+        h.reachedServer = true;
+        h.open = true;
+      }
       reconnectFailures.delete(instanceId);
       const me = sock.user;
       const phone = me?.id?.split(":")[0]?.split("@")[0] ?? null;
@@ -148,54 +185,37 @@ export async function startInstance(instanceId: string): Promise<void> {
 
     if (connection === "close") {
       const code = new Boom(lastDisconnect?.error).output?.statusCode;
-      const loggedOut = code === DisconnectReason.loggedOut;
       const holder = sockets.get(instanceId);
 
-      console.log(`[wa] ${instanceId} closed code=${code} loggedOut=${loggedOut}`);
+      // Закрылся старый сокет, а в Map уже новый — не трогаем живой
+      if (holder && holder.sock !== sock) {
+        console.log(`[wa] ${instanceId} stale socket closed code=${code}, ignoring`);
+        return;
+      }
+      console.log(`[wa] ${instanceId} closed code=${code}`);
       sockets.delete(instanceId);
 
-      if (loggedOut) {
-        const inst = await prisma.wAInstance.findUnique({
-          where: { id: instanceId },
-          select: {
-            label: true,
-            phoneNumber: true,
-            tenant: { select: { name: true, telegramChatId: true } },
-          },
-        });
-        await prisma.wAInstance.update({
-          where: { id: instanceId },
-          data: {
-            status: "BANNED",
-            bannedAt: new Date(),
-            sessionBlob: null,
-            qrCode: null,
-            qrExpiresAt: null,
-          },
-        });
-        const label = inst?.label || inst?.phoneNumber || instanceId;
-        // Alert tenant
-        if (inst?.tenant.telegramChatId) {
-          await sendTelegram({
-            chatId: inst.tenant.telegramChatId,
-            text:
-              `🚫 <b>Номер отключен от WhatsApp</b>\n\n` +
-              `${escapeHtml(label)} больше не подключен. Возможные причины: вышли из WhatsApp Web с телефона / WhatsApp заблокировал номер.\n\n` +
-              `Подключите новый QR в кабинете Jamiwa.`,
-          }).catch(() => {});
-        }
-        // Alert admin (Nariman)
-        const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID;
-        if (adminChat) {
-          await sendTelegram({
-            chatId: adminChat,
-            text:
-              `🚫 <b>Instance BANNED</b>\n\n` +
-              `Tenant: ${escapeHtml(inst?.tenant.name || "?")}\n` +
-              `Instance: ${escapeHtml(label)}\n` +
-              `code=${code}`,
-          }).catch(() => {});
-        }
+      const kind = classifyDisconnect(code);
+
+      if (kind === "logged_out" || kind === "bad_session") {
+        // Разлогиненные/битые creds в базу не пишем
+        holder?.cancel();
+        await setNeedsRelink(instanceId, code, kind);
+        return;
+      }
+      if (kind === "banned") {
+        holder?.cancel();
+        await setBanned(instanceId, code);
+        return;
+      }
+
+      // Дописываем сессию ДО переподключения, иначе новый сокет прочитает устаревшие ключи
+      await holder?.flush().catch((e) => console.warn(`[wa] ${instanceId} flush on close failed:`, (e as Error).message));
+
+      if (kind === "replaced") {
+        // Кто-то открыл этот номер в другом месте (второй воркер / локальный тест). Не бодаемся.
+        await prisma.wAInstance.update({ where: { id: instanceId }, data: { status: "DISCONNECTED" } });
+        await alertAdmin(`⚠️ <b>Номер открыт в другом месте</b> (code 440)\nInstance: ${instanceId}\nАвтопереподключение остановлено — проверь, нет ли второго воркера.`);
         return;
       }
 
@@ -210,197 +230,8 @@ export async function startInstance(instanceId: string): Promise<void> {
     }
   });
 
-  sock.ev.on("messages.upsert", async ({ messages, type }) => {
-    if (type !== "notify") return;
-    for (const msg of messages) {
-      if (!msg.message || msg.key.fromMe) continue;
-      const remoteJid = msg.key.remoteJid;
-      if (!remoteJid) continue;
-
-      // Игнорируем всё кроме личных диалогов: группы, каналы, рассылки, статусы.
-      // WhatsApp банит за активность бота в группах + это раздражает участников.
-      const isDirectMessage =
-        remoteJid.endsWith("@s.whatsapp.net") || remoteJid.endsWith("@lid");
-      if (!isDirectMessage) {
-        // @g.us (group), @broadcast, @newsletter, status@broadcast — skip silently
-        continue;
-      }
-
-      const text =
-        msg.message.conversation ||
-        msg.message.extendedTextMessage?.text ||
-        null;
-
-      if (!text) continue; // skip media for MVP
-
-      const keyAny = msg.key as unknown as Record<string, string | undefined>;
-      const phoneSrc = keyAny.senderPn || keyAny.participantPn || keyAny.remoteJidAlt;
-      const phoneNumber =
-        phoneSrc?.replace(/[^0-9]/g, "") ||
-        (remoteJid.endsWith("@s.whatsapp.net") ? remoteJid.split("@")[0] : null);
-
-      // WhatsApp может прислать одного контакта с двумя ID: @s.whatsapp.net и @lid.
-      // Чтобы не плодить дубликаты — сначала ищем чат по phoneNumber, если есть.
-      let chat = null as Awaited<ReturnType<typeof prisma.chat.findFirst>>;
-      if (phoneNumber) {
-        chat = await prisma.chat.findFirst({
-          where: { instanceId, phoneNumber },
-        });
-      }
-      if (chat) {
-        // Существующий чат той же персоны → обновляем
-        chat = await prisma.chat.update({
-          where: { id: chat.id },
-          data: {
-            name: msg.pushName ?? chat.name ?? undefined,
-            lastMsgAt: new Date(),
-            unread: { increment: 1 },
-          },
-        });
-      } else {
-        // Нет известного телефона или новый контакт → upsert по remoteJid
-        chat = await prisma.chat.upsert({
-          where: { instanceId_remoteJid: { instanceId, remoteJid } },
-          create: {
-            instanceId,
-            remoteJid,
-            phoneNumber,
-            name: msg.pushName || null,
-            lastMsgAt: new Date(),
-            unread: 1,
-          },
-          update: {
-            phoneNumber: phoneNumber ?? undefined,
-            name: msg.pushName ?? undefined,
-            lastMsgAt: new Date(),
-            unread: { increment: 1 },
-          },
-        });
-      }
-
-      await prisma.message.create({
-        data: {
-          chatId: chat.id,
-          instanceId,
-          fromMe: false,
-          text,
-          whatsappId: msg.key.id ?? null,
-          status: "DELIVERED",
-        },
-      });
-
-      console.log(`[in] ${instanceId} ${remoteJid}: ${text.slice(0, 60)}`);
-
-      // DNC auto-detect — если получатель сам просит не писать, заносим в Block List
-      const dncTrigger = detectDncRequest(text);
-      if (dncTrigger) {
-        await blockContact({
-          instanceId,
-          remoteJid,
-          phoneNumber,
-          trigger: dncTrigger,
-        });
-        // Pause AI in this chat too so мы не пытаемся ответить
-        const cur = await prisma.wAInstance.findUnique({
-          where: { id: instanceId },
-          select: { aiPausedChats: true },
-        });
-        if (cur) {
-          const set = new Set(cur.aiPausedChats);
-          set.add(remoteJid);
-          await prisma.wAInstance.update({
-            where: { id: instanceId },
-            data: { aiPausedChats: [...set] },
-          });
-        }
-      }
-
-      // Fire webhook if configured
-      const instWithHook = await prisma.wAInstance.findUnique({
-        where: { id: instanceId },
-        select: { webhookUrl: true, webhookSecret: true },
-      });
-      if (instWithHook?.webhookUrl) {
-        void dispatchWebhook(instWithHook.webhookUrl, instWithHook.webhookSecret, {
-          event: "message.received",
-          instanceId,
-          data: {
-            chatId: chat.id,
-            from: remoteJid,
-            phoneNumber,
-            name: msg.pushName,
-            text,
-            whatsappId: msg.key.id,
-          },
-          occurredAt: new Date().toISOString(),
-        });
-      }
-
-      // AI auto-reply (skip if DNC was just triggered — already paused above)
-      if (dncTrigger) continue;
-      // Без sessionBlob и groupsCache — они тяжёлые и здесь не нужны
-      const fresh = await prisma.wAInstance.findUnique({
-        where: { id: instanceId },
-        omit: { sessionBlob: true, groupsCache: true, qrCode: true },
-      });
-      if (fresh && shouldAiReply(fresh, remoteJid)) {
-        // Quota check — защита от пожирания токенов
-        const tenant = await prisma.tenant.findUnique({
-          where: { id: fresh.tenantId },
-          select: { plan: true, currentPeriodEnd: true },
-        });
-        const quota = await checkAiQuota({
-          tenantId: fresh.tenantId,
-          chatId: chat.id,
-          inputText: text,
-          plan: tenant?.plan || "TRIAL",
-          currentPeriodEnd: tenant?.currentPeriodEnd || null,
-        });
-        if (!quota.ok) {
-          console.warn(`[ai] ${instanceId} skipped: ${quota.reason}`);
-          continue;
-        }
-
-        // Старт AI генерации немедленно (параллельно с минимальной паузой 600мс
-        // чтобы не выглядело как мгновенный бот). Outbound уже потом квантуется.
-        const minDelay = 600 + Math.random() * 400; // 0.6-1.0 сек
-        const start = Date.now();
-        (async () => {
-          try {
-            const aiPromise = generateAiReply({
-              inst: fresh,
-              chatId: chat.id,
-              remoteJid,
-              fromPhone: phoneNumber,
-              newUserMessage: text,
-            });
-            const [result] = await Promise.all([
-              aiPromise,
-              new Promise((r) => setTimeout(r, minDelay)),
-            ]);
-            const elapsed = Date.now() - start;
-            if (!result || !result.reply) return;
-
-            await prisma.outboundJob.create({
-              data: {
-                instanceId,
-                to: remoteJid,
-                payload: { type: "text", text: result.reply },
-                status: "QUEUED",
-              },
-            });
-            void elapsed;
-            console.log(
-              `[ai] ${instanceId} -> ${remoteJid}: ${result.reply.slice(0, 60)}${
-                result.escalate ? " [HOT]" : ""
-              }${result.handoff ? " [HANDOFF]" : ""}`,
-            );
-          } catch (e) {
-            console.error(`[ai] reply failed:`, (e as Error).message);
-          }
-        })();
-      }
-    }
+  sock.ev.on("messages.upsert", (ev) => {
+    void handleUpsert(instanceId, sock, ev);
   });
 }
 
@@ -421,6 +252,83 @@ export async function stopInstance(instanceId: string, opts: { logout?: boolean 
   }
   sockets.delete(instanceId);
   if (!opts.logout) await holder.flush().catch(() => {});
+}
+
+type DisconnectKind = "logged_out" | "banned" | "bad_session" | "replaced" | "retry";
+
+/**
+ * Коды закрытия Baileys: 401 — отвязали устройство / телефон 14 дней офлайн (нужен новый QR);
+ * 403 — бан; 500 badSession и 411 multidevice mismatch — сессия битая, нужен новый QR;
+ * 440 — тот же номер открыт в другом месте; остальное (408, 428, 503, 515…) — переподключаемся.
+ */
+function classifyDisconnect(code: number | undefined): DisconnectKind {
+  switch (code) {
+    case DisconnectReason.loggedOut:
+      return "logged_out";
+    case DisconnectReason.forbidden:
+      return "banned";
+    case DisconnectReason.badSession:
+    case DisconnectReason.multideviceMismatch:
+      return "bad_session";
+    case DisconnectReason.connectionReplaced:
+      return "replaced";
+    default:
+      return "retry";
+  }
+}
+
+async function instanceLabel(instanceId: string) {
+  const inst = await prisma.wAInstance.findUnique({
+    where: { id: instanceId },
+    select: { label: true, phoneNumber: true, tenant: { select: { name: true, telegramChatId: true } } },
+  });
+  return { inst, label: inst?.label || (inst?.phoneNumber ? `+${inst.phoneNumber}` : instanceId) };
+}
+
+async function alertAdmin(text: string) {
+  const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminChat) return;
+  await sendTelegram({ chatId: adminChat, text }).catch(() => {});
+}
+
+/** 401/500/411: сессия больше не действует, владелец должен привязать номер заново. Чаты и настройки сохраняем. */
+async function setNeedsRelink(instanceId: string, code: number | undefined, kind: DisconnectKind) {
+  const { inst, label } = await instanceLabel(instanceId);
+  await prisma.wAInstance.update({
+    where: { id: instanceId },
+    data: { status: "LOGGED_OUT", sessionBlob: null, qrCode: null, qrExpiresAt: null },
+  });
+  const why =
+    kind === "logged_out"
+      ? "устройство отвязали в телефоне (Связанные устройства) или телефон был не в сети больше 14 дней"
+      : "WhatsApp сбросил сессию";
+  if (inst?.tenant.telegramChatId) {
+    await sendTelegram({
+      chatId: inst.tenant.telegramChatId,
+      text:
+        `🔌 <b>Номер отключился от бота</b>\n\n${escapeHtml(label)}: ${why}.\n\n` +
+        `Откройте кабинет Jamiwa → номер → «Привязать заново» и отсканируйте QR. Настройки и переписка сохранены.`,
+    }).catch(() => {});
+  }
+  await alertAdmin(`🔌 <b>Нужна повторная привязка</b>\nTenant: ${escapeHtml(inst?.tenant.name || "?")}\nInstance: ${escapeHtml(label)}\ncode=${code} (${kind})`);
+}
+
+/** 403: WhatsApp заблокировал номер. */
+async function setBanned(instanceId: string, code: number | undefined) {
+  const { inst, label } = await instanceLabel(instanceId);
+  await prisma.wAInstance.update({
+    where: { id: instanceId },
+    data: { status: "BANNED", bannedAt: new Date(), sessionBlob: null, qrCode: null, qrExpiresAt: null },
+  });
+  if (inst?.tenant.telegramChatId) {
+    await sendTelegram({
+      chatId: inst.tenant.telegramChatId,
+      text:
+        `🚫 <b>WhatsApp заблокировал номер</b>\n\n${escapeHtml(label)}: получен код 403. ` +
+        `Проверьте номер в приложении WhatsApp; если он работает — напишите нам, разберёмся.`,
+    }).catch(() => {});
+  }
+  await alertAdmin(`🚫 <b>Instance BANNED</b>\nTenant: ${escapeHtml(inst?.tenant.name || "?")}\nInstance: ${escapeHtml(label)}\ncode=${code}`);
 }
 
 /** Список групп, где состоит номер — для выбора группы отчётов в кабинете. Не критично, ошибки глотаем. */
@@ -449,6 +357,7 @@ export async function sendText(
   if (!holder) throw new Error("Instance is not online");
   const jid = to.includes("@") ? to : `${to.replace(/[^0-9]/g, "")}@s.whatsapp.net`;
   const res = await holder.sock.sendMessage(jid, { text });
+  rememberSentId(res?.key?.id);
   return { whatsappId: res?.key?.id ?? null };
 }
 

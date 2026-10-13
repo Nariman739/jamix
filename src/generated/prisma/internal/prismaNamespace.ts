@@ -1588,6 +1588,8 @@ export const ChatScalarFieldEnum = {
   leadData: 'leadData',
   leadStatus: 'leadStatus',
   leadReportedAt: 'leadReportedAt',
+  lastManualAt: 'lastManualAt',
+  aiPausedUntil: 'aiPausedUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1606,6 +1608,8 @@ export const MessageScalarFieldEnum = {
   mediaMime: 'mediaMime',
   status: 'status',
   whatsappId: 'whatsappId',
+  kind: 'kind',
+  manual: 'manual',
   createdAt: 'createdAt'
 } as const
 

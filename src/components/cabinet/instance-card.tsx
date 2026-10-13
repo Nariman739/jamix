@@ -63,18 +63,36 @@ export function InstanceCard({ initial }: { initial: Instance }) {
       }
     };
 
-    if (inst.status === "CONNECTED" || inst.status === "BANNED") {
-      // Slow poll, just keeps phone number / status fresh
-      pollRef.current = window.setInterval(tick, 5000);
-    } else {
-      pollRef.current = window.setInterval(tick, 1500);
-    }
+    // Быстрый опрос только пока ждём QR/скан; в остальных статусах QR не придёт, достаточно раз в 5 с.
+    // На скрытой вкладке не опрашиваем вовсе (иначе ночная вкладка = десятки тысяч запросов).
+    const fast = inst.status === "PENDING" || inst.status === "QR_READY" || inst.status === "CONNECTING";
+    const guarded = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      void tick();
+    };
+    pollRef.current = window.setInterval(guarded, fast ? 1500 : 5000);
     void tick();
 
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [inst.id, inst.status, inst.phoneNumber]);
+
+  const [relinking, setRelinking] = useState(false);
+  const handleRelink = async () => {
+    setRelinking(true);
+    try {
+      const res = await fetch(`/api/v1/wa/instances/${inst.id}/relink`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSendResult(data.error || "Не удалось начать привязку");
+        return;
+      }
+      setInst((prev) => ({ ...prev, status: "PENDING" }));
+    } finally {
+      setRelinking(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!confirm("Удалить этот номер?")) return;
@@ -126,12 +144,44 @@ export function InstanceCard({ initial }: { initial: Instance }) {
         )}
       </div>
 
+      {/* Отвязали устройство / сессия сброшена — нужна новая привязка, данные целы */}
+      {inst.status === "LOGGED_OUT" && (
+        <div className="glass rounded-2xl p-6 flex items-start gap-3">
+          <AlertTriangle className="text-amber-400 mt-0.5 shrink-0" size={20} />
+          <div className="flex-1">
+            <p className="font-medium">Номер отключился от бота</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Устройство отвязали в телефоне или телефон долго был не в сети. Настройки бота и переписка
+              сохранены — просто привяжите номер ещё раз.
+            </p>
+            <Button onClick={handleRelink} disabled={relinking} className="rounded-xl mt-4">
+              {relinking ? "Готовим QR…" : "Привязать заново"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Временный разрыв: воркер переподключается сам */}
+      {inst.status === "DISCONNECTED" && (
+        <div className="glass rounded-2xl p-6 flex items-start gap-3">
+          <AlertTriangle className="text-amber-400 mt-0.5 shrink-0" size={20} />
+          <div className="flex-1">
+            <p className="font-medium">Связь с WhatsApp прервалась</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Переподключаемся автоматически, обычно это минута-две. Если статус не меняется дольше 10 минут —
+              привяжите номер заново.
+            </p>
+            <Button onClick={handleRelink} disabled={relinking} variant="outline" className="rounded-xl mt-4">
+              {relinking ? "Готовим QR…" : "Привязать заново"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* QR screen */}
       {(inst.status === "PENDING" ||
         inst.status === "CONNECTING" ||
-        inst.status === "QR_READY" ||
-        inst.status === "LOGGED_OUT" ||
-        inst.status === "DISCONNECTED") && (
+        inst.status === "QR_READY") && (
         <div className="glass rounded-2xl p-6 text-center">
           <h2 className="font-semibold mb-4">Привяжите WhatsApp</h2>
           {qrDataUrl ? (
@@ -155,7 +205,7 @@ export function InstanceCard({ initial }: { initial: Instance }) {
                 Готовим QR-код... обычно 5-10 секунд
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                Worker должен быть запущен: <code>npm run worker:dev</code>
+                Если QR не появился за минуту — обновите страницу или напишите нам.
               </p>
             </div>
           )}
@@ -207,7 +257,8 @@ export function InstanceCard({ initial }: { initial: Instance }) {
           <div>
             <p className="font-medium text-red-400">Номер заблокирован WhatsApp</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Удалите этот инстанс и подключите другой номер. Прогревайте новые номера медленно.
+              Проверьте номер в приложении WhatsApp. Если он работает — напишите нам, разберёмся. Если
+              заблокирован — подключите другой номер и не делайте с него рассылок.
             </p>
           </div>
         </div>

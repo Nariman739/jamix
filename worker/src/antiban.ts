@@ -16,26 +16,29 @@ import { sendTelegram } from "./telegram";
 // поэтому используем Unicode-aware границы через (?<![\p{L}]) и (?![\p{L}]) + флаг u.
 const NB = `(?<![\\p{L}\\p{N}])`; // не-буква/цифра перед
 const NA = `(?![\\p{L}\\p{N}])`; // не-буква/цифра после
+// Только однозначные формулировки. В Казахстане «отпишитесь» = «ответьте», «почему не пишите?» = ждёт ответа,
+// «стоп, а дети?» — уточнение. Такие фразы блокировали тёплых клиентов навсегда (аудит 13.10).
+// Одиночное «стоп» засчитываем только как всё сообщение целиком (см. detectDncRequest).
 const DNC_PATTERNS: RegExp[] = [
-  new RegExp(`${NB}стоп${NA}`, "iu"),
-  new RegExp(`${NB}стопп+${NA}`, "iu"),
-  new RegExp(`не\\s+пиш(?:и|у|ите|ите\\s+мне|ите\\s+нам)`, "iu"),
-  new RegExp(`не\\s+пиш(?:и|и+те|ите)\\s+(?:мне|нам|больше)`, "iu"),
-  new RegExp(`отпиш(?:и|и+те|ите)`, "iu"),
-  new RegExp(`отписаться`, "iu"),
-  new RegExp(`unsubscribe`, "i"),
+  new RegExp(`больше\\s+не\\s+пиш(?:и|ите)(?:\\s+(?:мне|нам|сюда))?${NA}`, "iu"),
+  new RegExp(`не\\s+пиш(?:и|ите)\\s+(?:мне|нам)\\s+больше`, "iu"),
+  new RegExp(`(?:прошу|пожалуйста)[,\\s]+(?:больше\\s+)?не\\s+пиш(?:и|ите)`, "iu"),
+  new RegExp(`отпиш(?:и|ите)\\s+меня`, "iu"),
+  new RegExp(`${NB}отписаться${NA}`, "iu"),
+  new RegExp(`${NB}unsubscribe${NA}`, "i"),
   new RegExp(`удалите\\s+(?:меня|мой\\s+номер)`, "iu"),
-  new RegExp(`не\\s+звоните\\s+и\\s+не\\s+пиш(?:и|у|ите)`, "iu"),
-  new RegExp(`хватит\\s+(?:писать|спамить)`, "iu"),
-  new RegExp(`больше\\s+не\\s+пиш(?:и|у|ите)`, "iu"),
-  new RegExp(`перестаньте\\s+(?:писать|меня\\s+беспокоить)`, "iu"),
-  new RegExp(`достали\\s+уже`, "iu"),
-  new RegExp(`${NB}toqta${NA}`, "iu"), // KZ "стоп"
+  new RegExp(`не\\s+звоните\\s+и\\s+не\\s+пиш(?:и|ите)`, "iu"),
+  new RegExp(`хватит\\s+(?:писать|спамить|мне\\s+писать)`, "iu"),
+  new RegExp(`перестаньте\\s+(?:писать|мне\\s+писать|меня\\s+беспокоить)`, "iu"),
+  new RegExp(`(?:вы\\s+)?достали\\s+(?:уже|своими)`, "iu"),
   new RegExp(`жазбаңыз`, "iu"), // KZ "не пишите"
 ];
 
 /** If incoming text matches DNC pattern, returns the matched phrase. Otherwise null. */
 export function detectDncRequest(text: string): string | null {
+  // Сообщение целиком «стоп» / «stop» (с точкой/восклицанием) — отказ. Внутри фразы «стоп» не считаем.
+  const whole = text.trim().toLowerCase().replace(/[.!…]+$/g, "").trim();
+  if (/^(стоп|стопп+|stop|тоқта|toqta)$/u.test(whole)) return whole;
   for (const re of DNC_PATTERNS) {
     const m = text.match(re);
     if (m) return m[0];
@@ -68,9 +71,17 @@ export async function blockContact(args: {
   console.log(`[dnc] ${args.instanceId} blocked ${args.remoteJid} (trigger="${args.trigger}")`);
 }
 
-export async function isBlocked(instanceId: string, remoteJid: string): Promise<boolean> {
-  const found = await prisma.blockedContact.findUnique({
-    where: { instanceId_remoteJid: { instanceId, remoteJid } },
+/** Заблокирован ли контакт — по jid ИЛИ по телефону (один человек приходит и как @lid, и как @s.whatsapp.net). */
+export async function isBlocked(instanceId: string, remoteJid: string, phoneNumber?: string | null): Promise<boolean> {
+  const digits = phoneNumber?.replace(/[^0-9]/g, "") || (remoteJid.endsWith("@s.whatsapp.net") ? remoteJid.split("@")[0] : null);
+  const found = await prisma.blockedContact.findFirst({
+    where: {
+      instanceId,
+      OR: [
+        { remoteJid },
+        ...(digits ? [{ phoneNumber: digits }, { remoteJid: `${digits}@s.whatsapp.net` }] : []),
+      ],
+    },
     select: { id: true },
   });
   return !!found;

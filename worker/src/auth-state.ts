@@ -19,6 +19,8 @@ export interface ManagedAuth {
   saveCreds: () => Promise<void>;
   /** Немедленно записать отложенные изменения (перед остановкой воркера). */
   flush: () => Promise<void>;
+  /** Отменить отложенную запись без сохранения (после 401: разлогиненные creds не нужны). */
+  cancel: () => void;
 }
 
 export async function makeAuthState(instanceId: string): Promise<ManagedAuth> {
@@ -50,8 +52,11 @@ export async function makeAuthState(instanceId: string): Promise<ManagedAuth> {
   let timer: NodeJS.Timeout | null = null;
   let lastWrittenHash = "";
   let writing: Promise<void> | null = null;
+  let resolveWriting: (() => void) | null = null;
+  let cancelled = false;
 
   const writeNow = async () => {
+    if (cancelled) return;
     const json = JSON.stringify({ creds, keys }, BufferJSON.replacer);
     const hash = crypto.createHash("sha1").update(json).digest("hex");
     if (hash === lastWrittenHash) return;
@@ -63,9 +68,19 @@ export async function makeAuthState(instanceId: string): Promise<ManagedAuth> {
     lastWrittenHash = hash;
   };
 
+  // Завершить ожидание всех, кто ждёт отложенную запись (keys.set в Baileys её await'ит)
+  const settle = () => {
+    const r = resolveWriting;
+    writing = null;
+    resolveWriting = null;
+    r?.();
+  };
+
   const persist = (): Promise<void> => {
+    if (cancelled) return Promise.resolve();
     if (timer) return writing ?? Promise.resolve();
     writing = new Promise<void>((resolve) => {
+      resolveWriting = resolve;
       timer = setTimeout(async () => {
         timer = null;
         try {
@@ -73,8 +88,7 @@ export async function makeAuthState(instanceId: string): Promise<ManagedAuth> {
         } catch (e) {
           console.error(`[auth] persist failed for ${instanceId}:`, (e as Error).message);
         } finally {
-          writing = null;
-          resolve();
+          settle();
         }
       }, PERSIST_DEBOUNCE_MS);
     });
@@ -118,9 +132,20 @@ export async function makeAuthState(instanceId: string): Promise<ManagedAuth> {
       if (timer) {
         clearTimeout(timer);
         timer = null;
-        writing = null;
       }
-      await writeNow();
+      try {
+        await writeNow();
+      } finally {
+        settle();
+      }
+    },
+    cancel: () => {
+      cancelled = true;
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      settle();
     },
   };
 }

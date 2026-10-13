@@ -1,5 +1,9 @@
 import { prisma } from "./db";
-import { isManaged, sendText } from "./instance-manager";
+import { isOnline, sendText } from "./instance-manager";
+
+const OFFLINE_RETRY_MS = 30_000; // номер не на связи — проверим через 30 с
+const OUTBOUND_TTL_MS = 30 * 60_000; // дольше 30 минут ответ уже неактуален
+const STUCK_PROCESSING_MS = 2 * 60_000; // PROCESSING старше 2 минут = воркер упал посреди отправки
 import {
   isBlocked,
   warmupLimit,
@@ -87,8 +91,18 @@ async function processOne(jobId: string) {
   });
   if (!job) return;
 
-  if (!isManaged(job.instanceId)) {
-    // worker has not picked up this instance yet, defer
+  if (!isOnline(job.instanceId)) {
+    // Номер переподключается или ещё не поднят: откладываем без счётчика попыток,
+    // чтобы готовый ответ клиенту не сгорел за 15 с. Через OUTBOUND_TTL_MS — FAILED.
+    const age = Date.now() - job.createdAt.getTime();
+    await prisma.outboundJob.update({
+      where: { id: job.id },
+      data:
+        age > OUTBOUND_TTL_MS
+          ? { status: "FAILED", errorMsg: "instance offline too long", processedAt: new Date() }
+          : { status: "QUEUED", scheduledAt: new Date(Date.now() + OFFLINE_RETRY_MS) },
+    });
+    if (age > OUTBOUND_TTL_MS) console.warn(`[out] job ${job.id} dropped: instance offline > ${OUTBOUND_TTL_MS / 60000} min`);
     return;
   }
 
@@ -163,6 +177,15 @@ async function processOne(jobId: string) {
       },
     });
   }
+}
+
+/** Задания, зависшие в PROCESSING (рестарт/крэш между claim и update), возвращаем в очередь. */
+export async function recoverStuckJobs() {
+  const res = await prisma.outboundJob.updateMany({
+    where: { status: "PROCESSING", createdAt: { lt: new Date(Date.now() - STUCK_PROCESSING_MS) } },
+    data: { status: "QUEUED", scheduledAt: new Date() },
+  });
+  if (res.count) console.warn(`[out] recovered ${res.count} stuck job(s) from PROCESSING`);
 }
 
 export async function tickOutbound() {

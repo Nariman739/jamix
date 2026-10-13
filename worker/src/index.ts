@@ -2,7 +2,7 @@ import "./bootstrap";
 import os from "os";
 import { prisma } from "./db";
 import { startInstance, stopInstance, shutdownAll, isManaged } from "./instance-manager";
-import { tickOutbound } from "./outbound-handler";
+import { tickOutbound, recoverStuckJobs } from "./outbound-handler";
 import { tickBulkDetection } from "./antiban";
 import { tickGlobalQuotaAlert } from "./quota";
 import { tickDailyDigest } from "./digest";
@@ -128,7 +128,17 @@ async function main() {
     }
   };
 
-  const tickInterval = setInterval(tick, POLL_MS);
+  // Последовательный тик: следующий стартует только после завершения предыдущего
+  // (setInterval запускал параллельные тики при медленной базе → двойные старты, ломаный rate-limit)
+  let stopped = false;
+  let tickTimer: NodeJS.Timeout | null = null;
+  const loop = async () => {
+    if (stopped) return;
+    await tick();
+    if (!stopped) tickTimer = setTimeout(loop, POLL_MS);
+  };
+  const tickInterval = { clear: () => { stopped = true; if (tickTimer) clearTimeout(tickTimer); } };
+  tickTimer = setTimeout(loop, POLL_MS);
   const heartbeatInterval = setInterval(() => heartbeat(nodeId).catch(() => {}), HEARTBEAT_MS);
   const bulkInterval = setInterval(
     () => tickBulkDetection().catch((e) => console.error("[bulk] tick error:", formatError(e))),
@@ -142,12 +152,18 @@ async function main() {
     () => tickDailyDigest().catch((e) => console.error("[digest] tick error:", formatError(e))),
     DIGEST_MS,
   );
+  await recoverStuckJobs().catch((e) => console.error("[out] recover error:", formatError(e)));
+  const recoverInterval = setInterval(
+    () => recoverStuckJobs().catch((e) => console.error("[out] recover error:", formatError(e))),
+    60_000,
+  );
   await tick();
 
   const shutdown = async (signal: string) => {
     console.log(`[worker] ${signal} received, shutting down...`);
-    clearInterval(tickInterval);
+    tickInterval.clear();
     clearInterval(digestInterval);
+    clearInterval(recoverInterval);
     clearInterval(heartbeatInterval);
     clearInterval(bulkInterval);
     clearInterval(quotaAlertInterval);

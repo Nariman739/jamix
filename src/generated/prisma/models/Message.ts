@@ -35,6 +35,8 @@ export type MessageMinAggregateOutputType = {
   mediaMime: string | null
   status: $Enums.MsgStatus | null
   whatsappId: string | null
+  kind: string | null
+  manual: boolean | null
   createdAt: Date | null
 }
 
@@ -49,6 +51,8 @@ export type MessageMaxAggregateOutputType = {
   mediaMime: string | null
   status: $Enums.MsgStatus | null
   whatsappId: string | null
+  kind: string | null
+  manual: boolean | null
   createdAt: Date | null
 }
 
@@ -63,6 +67,8 @@ export type MessageCountAggregateOutputType = {
   mediaMime: number
   status: number
   whatsappId: number
+  kind: number
+  manual: number
   createdAt: number
   _all: number
 }
@@ -79,6 +85,8 @@ export type MessageMinAggregateInputType = {
   mediaMime?: true
   status?: true
   whatsappId?: true
+  kind?: true
+  manual?: true
   createdAt?: true
 }
 
@@ -93,6 +101,8 @@ export type MessageMaxAggregateInputType = {
   mediaMime?: true
   status?: true
   whatsappId?: true
+  kind?: true
+  manual?: true
   createdAt?: true
 }
 
@@ -107,6 +117,8 @@ export type MessageCountAggregateInputType = {
   mediaMime?: true
   status?: true
   whatsappId?: true
+  kind?: true
+  manual?: true
   createdAt?: true
   _all?: true
 }
@@ -194,6 +206,8 @@ export type MessageGroupByOutputType = {
   mediaMime: string | null
   status: $Enums.MsgStatus
   whatsappId: string | null
+  kind: string
+  manual: boolean
   createdAt: Date
   _count: MessageCountAggregateOutputType | null
   _min: MessageMinAggregateOutputType | null
@@ -229,6 +243,8 @@ export type MessageWhereInput = {
   mediaMime?: Prisma.StringNullableFilter<"Message"> | string | null
   status?: Prisma.EnumMsgStatusFilter<"Message"> | $Enums.MsgStatus
   whatsappId?: Prisma.StringNullableFilter<"Message"> | string | null
+  kind?: Prisma.StringFilter<"Message"> | string
+  manual?: Prisma.BoolFilter<"Message"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   chat?: Prisma.XOR<Prisma.ChatScalarRelationFilter, Prisma.ChatWhereInput>
   instance?: Prisma.XOR<Prisma.WAInstanceScalarRelationFilter, Prisma.WAInstanceWhereInput>
@@ -245,6 +261,8 @@ export type MessageOrderByWithRelationInput = {
   mediaMime?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   whatsappId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  manual?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   chat?: Prisma.ChatOrderByWithRelationInput
   instance?: Prisma.WAInstanceOrderByWithRelationInput
@@ -252,6 +270,7 @@ export type MessageOrderByWithRelationInput = {
 
 export type MessageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  instanceId_whatsappId?: Prisma.MessageInstanceIdWhatsappIdCompoundUniqueInput
   AND?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
   OR?: Prisma.MessageWhereInput[]
   NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
@@ -264,10 +283,12 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   mediaMime?: Prisma.StringNullableFilter<"Message"> | string | null
   status?: Prisma.EnumMsgStatusFilter<"Message"> | $Enums.MsgStatus
   whatsappId?: Prisma.StringNullableFilter<"Message"> | string | null
+  kind?: Prisma.StringFilter<"Message"> | string
+  manual?: Prisma.BoolFilter<"Message"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   chat?: Prisma.XOR<Prisma.ChatScalarRelationFilter, Prisma.ChatWhereInput>
   instance?: Prisma.XOR<Prisma.WAInstanceScalarRelationFilter, Prisma.WAInstanceWhereInput>
-}, "id">
+}, "id" | "instanceId_whatsappId">
 
 export type MessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -280,6 +301,8 @@ export type MessageOrderByWithAggregationInput = {
   mediaMime?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   whatsappId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  manual?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MessageCountOrderByAggregateInput
   _max?: Prisma.MessageMaxOrderByAggregateInput
@@ -300,6 +323,8 @@ export type MessageScalarWhereWithAggregatesInput = {
   mediaMime?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
   status?: Prisma.EnumMsgStatusWithAggregatesFilter<"Message"> | $Enums.MsgStatus
   whatsappId?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
+  kind?: Prisma.StringWithAggregatesFilter<"Message"> | string
+  manual?: Prisma.BoolWithAggregatesFilter<"Message"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Message"> | Date | string
 }
 
@@ -312,6 +337,8 @@ export type MessageCreateInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
   chat: Prisma.ChatCreateNestedOneWithoutMessagesInput
   instance: Prisma.WAInstanceCreateNestedOneWithoutMessagesInput
@@ -328,6 +355,8 @@ export type MessageUncheckedCreateInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -340,6 +369,8 @@ export type MessageUpdateInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chat?: Prisma.ChatUpdateOneRequiredWithoutMessagesNestedInput
   instance?: Prisma.WAInstanceUpdateOneRequiredWithoutMessagesNestedInput
@@ -356,6 +387,8 @@ export type MessageUncheckedUpdateInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -370,6 +403,8 @@ export type MessageCreateManyInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -382,6 +417,8 @@ export type MessageUpdateManyMutationInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -396,6 +433,8 @@ export type MessageUncheckedUpdateManyInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -409,6 +448,11 @@ export type MessageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type MessageInstanceIdWhatsappIdCompoundUniqueInput = {
+  instanceId: string
+  whatsappId: string
+}
+
 export type MessageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
@@ -420,6 +464,8 @@ export type MessageCountOrderByAggregateInput = {
   mediaMime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   whatsappId?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  manual?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -434,6 +480,8 @@ export type MessageMaxOrderByAggregateInput = {
   mediaMime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   whatsappId?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  manual?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -448,6 +496,8 @@ export type MessageMinOrderByAggregateInput = {
   mediaMime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   whatsappId?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  manual?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -552,6 +602,8 @@ export type MessageCreateWithoutInstanceInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
   chat: Prisma.ChatCreateNestedOneWithoutMessagesInput
 }
@@ -566,6 +618,8 @@ export type MessageUncheckedCreateWithoutInstanceInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -609,6 +663,8 @@ export type MessageScalarWhereInput = {
   mediaMime?: Prisma.StringNullableFilter<"Message"> | string | null
   status?: Prisma.EnumMsgStatusFilter<"Message"> | $Enums.MsgStatus
   whatsappId?: Prisma.StringNullableFilter<"Message"> | string | null
+  kind?: Prisma.StringFilter<"Message"> | string
+  manual?: Prisma.BoolFilter<"Message"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
 }
 
@@ -621,6 +677,8 @@ export type MessageCreateWithoutChatInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
   instance: Prisma.WAInstanceCreateNestedOneWithoutMessagesInput
 }
@@ -635,6 +693,8 @@ export type MessageUncheckedCreateWithoutChatInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -674,6 +734,8 @@ export type MessageCreateManyInstanceInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -686,6 +748,8 @@ export type MessageUpdateWithoutInstanceInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chat?: Prisma.ChatUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -700,6 +764,8 @@ export type MessageUncheckedUpdateWithoutInstanceInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -713,6 +779,8 @@ export type MessageUncheckedUpdateManyWithoutInstanceInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -726,6 +794,8 @@ export type MessageCreateManyChatInput = {
   mediaMime?: string | null
   status?: $Enums.MsgStatus
   whatsappId?: string | null
+  kind?: string
+  manual?: boolean
   createdAt?: Date | string
 }
 
@@ -738,6 +808,8 @@ export type MessageUpdateWithoutChatInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instance?: Prisma.WAInstanceUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -752,6 +824,8 @@ export type MessageUncheckedUpdateWithoutChatInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -765,6 +839,8 @@ export type MessageUncheckedUpdateManyWithoutChatInput = {
   mediaMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumMsgStatusFieldUpdateOperationsInput | $Enums.MsgStatus
   whatsappId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  manual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -781,6 +857,8 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   mediaMime?: boolean
   status?: boolean
   whatsappId?: boolean
+  kind?: boolean
+  manual?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.ChatDefaultArgs<ExtArgs>
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -797,6 +875,8 @@ export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   mediaMime?: boolean
   status?: boolean
   whatsappId?: boolean
+  kind?: boolean
+  manual?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.ChatDefaultArgs<ExtArgs>
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -813,6 +893,8 @@ export type MessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   mediaMime?: boolean
   status?: boolean
   whatsappId?: boolean
+  kind?: boolean
+  manual?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.ChatDefaultArgs<ExtArgs>
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -829,10 +911,12 @@ export type MessageSelectScalar = {
   mediaMime?: boolean
   status?: boolean
   whatsappId?: boolean
+  kind?: boolean
+  manual?: boolean
   createdAt?: boolean
 }
 
-export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatId" | "instanceId" | "fromMe" | "text" | "mediaUrl" | "mediaType" | "mediaMime" | "status" | "whatsappId" | "createdAt", ExtArgs["result"]["message"]>
+export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatId" | "instanceId" | "fromMe" | "text" | "mediaUrl" | "mediaType" | "mediaMime" | "status" | "whatsappId" | "kind" | "manual" | "createdAt", ExtArgs["result"]["message"]>
 export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chat?: boolean | Prisma.ChatDefaultArgs<ExtArgs>
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -863,6 +947,8 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     mediaMime: string | null
     status: $Enums.MsgStatus
     whatsappId: string | null
+    kind: string
+    manual: boolean
     createdAt: Date
   }, ExtArgs["result"]["message"]>
   composites: {}
@@ -1299,6 +1385,8 @@ export interface MessageFieldRefs {
   readonly mediaMime: Prisma.FieldRef<"Message", 'String'>
   readonly status: Prisma.FieldRef<"Message", 'MsgStatus'>
   readonly whatsappId: Prisma.FieldRef<"Message", 'String'>
+  readonly kind: Prisma.FieldRef<"Message", 'String'>
+  readonly manual: Prisma.FieldRef<"Message", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Message", 'DateTime'>
 }
     

@@ -239,6 +239,9 @@ model Chat {
   leadData       Json?
   leadStatus     String?    // qualified | meeting — для списков и дайджеста
   leadReportedAt DateTime?  // когда последний раз уходил отчёт в группу
+  // Менеджер ответил сам с телефона → бот молчит в этом чате до aiPausedUntil
+  lastManualAt   DateTime?
+  aiPausedUntil  DateTime?
   messages    Message[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -260,10 +263,12 @@ model Message {
   mediaMime   String?
   status      MsgStatus    @default(PENDING)
   whatsappId  String?      // WA message ID for status mapping
+  kind        String       @default("text") // text | voice | image | video | document | sticker | other
+  manual      Boolean      @default(false)  // fromMe, но написано человеком с телефона, а не ботом
   createdAt   DateTime     @default(now())
 
   @@index([chatId, createdAt])
-  @@index([whatsappId])
+  @@unique([instanceId, whatsappId]) // дедупликация повторных доставок от WhatsApp
 }
 
 model OutboundJob {

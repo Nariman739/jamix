@@ -44,6 +44,8 @@ export type ChatMinAggregateOutputType = {
   unread: number | null
   leadStatus: string | null
   leadReportedAt: Date | null
+  lastManualAt: Date | null
+  aiPausedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +60,8 @@ export type ChatMaxAggregateOutputType = {
   unread: number | null
   leadStatus: string | null
   leadReportedAt: Date | null
+  lastManualAt: Date | null
+  aiPausedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -73,6 +77,8 @@ export type ChatCountAggregateOutputType = {
   leadData: number
   leadStatus: number
   leadReportedAt: number
+  lastManualAt: number
+  aiPausedUntil: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -97,6 +103,8 @@ export type ChatMinAggregateInputType = {
   unread?: true
   leadStatus?: true
   leadReportedAt?: true
+  lastManualAt?: true
+  aiPausedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -111,6 +119,8 @@ export type ChatMaxAggregateInputType = {
   unread?: true
   leadStatus?: true
   leadReportedAt?: true
+  lastManualAt?: true
+  aiPausedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -126,6 +136,8 @@ export type ChatCountAggregateInputType = {
   leadData?: true
   leadStatus?: true
   leadReportedAt?: true
+  lastManualAt?: true
+  aiPausedUntil?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -228,6 +240,8 @@ export type ChatGroupByOutputType = {
   leadData: runtime.JsonValue | null
   leadStatus: string | null
   leadReportedAt: Date | null
+  lastManualAt: Date | null
+  aiPausedUntil: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ChatCountAggregateOutputType | null
@@ -266,6 +280,8 @@ export type ChatWhereInput = {
   leadData?: Prisma.JsonNullableFilter<"Chat">
   leadStatus?: Prisma.StringNullableFilter<"Chat"> | string | null
   leadReportedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  lastManualAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  aiPausedUntil?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   instance?: Prisma.XOR<Prisma.WAInstanceScalarRelationFilter, Prisma.WAInstanceWhereInput>
@@ -283,6 +299,8 @@ export type ChatOrderByWithRelationInput = {
   leadData?: Prisma.SortOrderInput | Prisma.SortOrder
   leadStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   leadReportedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastManualAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   instance?: Prisma.WAInstanceOrderByWithRelationInput
@@ -304,6 +322,8 @@ export type ChatWhereUniqueInput = Prisma.AtLeast<{
   leadData?: Prisma.JsonNullableFilter<"Chat">
   leadStatus?: Prisma.StringNullableFilter<"Chat"> | string | null
   leadReportedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  lastManualAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  aiPausedUntil?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   instance?: Prisma.XOR<Prisma.WAInstanceScalarRelationFilter, Prisma.WAInstanceWhereInput>
@@ -321,6 +341,8 @@ export type ChatOrderByWithAggregationInput = {
   leadData?: Prisma.SortOrderInput | Prisma.SortOrder
   leadStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   leadReportedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastManualAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ChatCountOrderByAggregateInput
@@ -344,6 +366,8 @@ export type ChatScalarWhereWithAggregatesInput = {
   leadData?: Prisma.JsonNullableWithAggregatesFilter<"Chat">
   leadStatus?: Prisma.StringNullableWithAggregatesFilter<"Chat"> | string | null
   leadReportedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Chat"> | Date | string | null
+  lastManualAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Chat"> | Date | string | null
+  aiPausedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"Chat"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Chat"> | Date | string
 }
@@ -358,6 +382,8 @@ export type ChatCreateInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   instance: Prisma.WAInstanceCreateNestedOneWithoutChatsInput
@@ -375,6 +401,8 @@ export type ChatUncheckedCreateInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChatInput
@@ -390,6 +418,8 @@ export type ChatUpdateInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instance?: Prisma.WAInstanceUpdateOneRequiredWithoutChatsNestedInput
@@ -407,6 +437,8 @@ export type ChatUncheckedUpdateInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChatNestedInput
@@ -423,6 +455,8 @@ export type ChatCreateManyInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +471,8 @@ export type ChatUpdateManyMutationInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -452,6 +488,8 @@ export type ChatUncheckedUpdateManyInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -482,6 +520,8 @@ export type ChatCountOrderByAggregateInput = {
   leadData?: Prisma.SortOrder
   leadStatus?: Prisma.SortOrder
   leadReportedAt?: Prisma.SortOrder
+  lastManualAt?: Prisma.SortOrder
+  aiPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -500,6 +540,8 @@ export type ChatMaxOrderByAggregateInput = {
   unread?: Prisma.SortOrder
   leadStatus?: Prisma.SortOrder
   leadReportedAt?: Prisma.SortOrder
+  lastManualAt?: Prisma.SortOrder
+  aiPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -514,6 +556,8 @@ export type ChatMinOrderByAggregateInput = {
   unread?: Prisma.SortOrder
   leadStatus?: Prisma.SortOrder
   leadReportedAt?: Prisma.SortOrder
+  lastManualAt?: Prisma.SortOrder
+  aiPausedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -593,6 +637,8 @@ export type ChatCreateWithoutInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageCreateNestedManyWithoutChatInput
@@ -608,6 +654,8 @@ export type ChatUncheckedCreateWithoutInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChatInput
@@ -653,6 +701,8 @@ export type ChatScalarWhereInput = {
   leadData?: Prisma.JsonNullableFilter<"Chat">
   leadStatus?: Prisma.StringNullableFilter<"Chat"> | string | null
   leadReportedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  lastManualAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  aiPausedUntil?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
 }
@@ -667,6 +717,8 @@ export type ChatCreateWithoutMessagesInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   instance: Prisma.WAInstanceCreateNestedOneWithoutChatsInput
@@ -683,6 +735,8 @@ export type ChatUncheckedCreateWithoutMessagesInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -713,6 +767,8 @@ export type ChatUpdateWithoutMessagesInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instance?: Prisma.WAInstanceUpdateOneRequiredWithoutChatsNestedInput
@@ -729,6 +785,8 @@ export type ChatUncheckedUpdateWithoutMessagesInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -743,6 +801,8 @@ export type ChatCreateManyInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: string | null
   leadReportedAt?: Date | string | null
+  lastManualAt?: Date | string | null
+  aiPausedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -757,6 +817,8 @@ export type ChatUpdateWithoutInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUpdateManyWithoutChatNestedInput
@@ -772,6 +834,8 @@ export type ChatUncheckedUpdateWithoutInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChatNestedInput
@@ -787,6 +851,8 @@ export type ChatUncheckedUpdateManyWithoutInstanceInput = {
   leadData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leadStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadReportedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastManualAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -833,6 +899,8 @@ export type ChatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   leadData?: boolean
   leadStatus?: boolean
   leadReportedAt?: boolean
+  lastManualAt?: boolean
+  aiPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -851,6 +919,8 @@ export type ChatSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadData?: boolean
   leadStatus?: boolean
   leadReportedAt?: boolean
+  lastManualAt?: boolean
+  aiPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -867,6 +937,8 @@ export type ChatSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadData?: boolean
   leadStatus?: boolean
   leadReportedAt?: boolean
+  lastManualAt?: boolean
+  aiPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
@@ -883,11 +955,13 @@ export type ChatSelectScalar = {
   leadData?: boolean
   leadStatus?: boolean
   leadReportedAt?: boolean
+  lastManualAt?: boolean
+  aiPausedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "remoteJid" | "phoneNumber" | "name" | "lastMsgAt" | "unread" | "leadData" | "leadStatus" | "leadReportedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["chat"]>
+export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "remoteJid" | "phoneNumber" | "name" | "lastMsgAt" | "unread" | "leadData" | "leadStatus" | "leadReportedAt" | "lastManualAt" | "aiPausedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["chat"]>
 export type ChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   instance?: boolean | Prisma.WAInstanceDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.Chat$messagesArgs<ExtArgs>
@@ -917,6 +991,8 @@ export type $ChatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     leadData: runtime.JsonValue | null
     leadStatus: string | null
     leadReportedAt: Date | null
+    lastManualAt: Date | null
+    aiPausedUntil: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["chat"]>
@@ -1354,6 +1430,8 @@ export interface ChatFieldRefs {
   readonly leadData: Prisma.FieldRef<"Chat", 'Json'>
   readonly leadStatus: Prisma.FieldRef<"Chat", 'String'>
   readonly leadReportedAt: Prisma.FieldRef<"Chat", 'DateTime'>
+  readonly lastManualAt: Prisma.FieldRef<"Chat", 'DateTime'>
+  readonly aiPausedUntil: Prisma.FieldRef<"Chat", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Chat", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Chat", 'DateTime'>
 }
