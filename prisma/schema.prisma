@@ -161,7 +161,7 @@ model WAInstance {
 
   // AI bot config — if enabled, worker auto-replies to incoming messages
   aiEnabled       Boolean      @default(false)
-  aiModel         String       @default("anthropic/claude-sonnet-4")
+  aiModel         String       @default("anthropic/claude-sonnet-5.5") // только из src/lib/ai-models.ts
   aiSystemPrompt  String?      // role + behavior for the AI
   aiBusinessName  String?      // injected into prompt as company name
   aiGreeting      String?      // first message after long pause

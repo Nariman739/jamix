@@ -26,20 +26,53 @@ type ClientMessage = {
   content: string;
 };
 
+// Публичный эндпоинт без авторизации: ограничиваем частоту по IP и размер истории,
+// иначе это бесплатный прокси к модели на нашем ключе (аудит 13.10, Д1).
+const DEMO_MODEL = "anthropic/claude-haiku-5.5";
+const MAX_MSG_CHARS = 500;
+const MAX_HISTORY_CHARS = 3000;
+const RATE_WINDOW_MS = 60 * 60_000;
+const RATE_MAX = 20;
+const hits = new Map<string, number[]>(); // память инстанса функции — не идеально, но дёшево
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const arr = (hits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (arr.length >= RATE_MAX) return true;
+  arr.push(now);
+  hits.set(ip, arr);
+  if (hits.size > 5000) hits.clear();
+  return false;
+}
+
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (rateLimited(ip)) {
+    return NextResponse.json({ error: "Слишком много сообщений, попробуйте позже" }, { status: 429 });
+  }
+
   const body = (await req.json().catch(() => ({}))) as {
     messages?: ClientMessage[];
   };
 
-  const history = (body.messages || []).slice(-10); // keep last 10 turns
+  const history: ClientMessage[] = [];
+  let total = 0;
+  for (const m of (body.messages || []).slice(-10).reverse()) {
+    if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") continue;
+    const content = m.content.slice(0, MAX_MSG_CHARS);
+    if (total + content.length > MAX_HISTORY_CHARS) break;
+    total += content.length;
+    history.unshift({ role: m.role, content });
+  }
   if (history.length === 0) {
     return NextResponse.json({ error: "messages required" }, { status: 400 });
   }
 
   try {
     const client = getOpenRouter();
+    void AI_MODEL;
     const completion = await client.chat.completions.create({
-      model: AI_MODEL,
+      model: DEMO_MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...history,

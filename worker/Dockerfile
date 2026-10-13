@@ -13,6 +13,8 @@ COPY worker/vendor ./worker/vendor
 RUN cd worker && npm ci
 
 COPY src/generated/prisma ./src/generated/prisma
+# Общий модуль промпта (используется и кабинетом, и воркером)
+COPY src/lib/bot-prompt.ts ./src/lib/bot-prompt.ts
 # Сгенерированный клиент лежит в /app/src и ищет @prisma/client вверх по дереву — отдаём ему пакет воркера
 # (версии @prisma/client в worker и в корне должны совпадать с версией prisma CLI, которой сгенерирован клиент).
 RUN mkdir -p node_modules/@prisma && ln -s /app/worker/node_modules/@prisma/client node_modules/@prisma/client

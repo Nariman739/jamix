@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireInstance, jsonError } from "@/lib/wa-api-helpers";
+import { isAllowedModel } from "@/lib/ai-models";
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
@@ -42,6 +43,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     return jsonError("Час сводки: 0-23", 400);
   }
 
+  if (body.aiModel !== undefined && !isAllowedModel(body.aiModel)) {
+    return jsonError("Модель не из списка разрешённых", 400);
+  }
+  for (const [k, max] of [["aiBusinessName", 200], ["aiGreeting", 1000], ["aiHandoffMessage", 1000]] as const) {
+    const v = body[k];
+    if (v != null && (typeof v !== "string" || v.length > max)) return jsonError(`${k}: максимум ${max} символов`, 400);
+  }
+  for (const k of ["aiWorkStartHr", "aiWorkEndHr"] as const) {
+    const v = body[k];
+    if (v != null && (!Number.isInteger(v) || v < 0 || v > 23)) return jsonError(`${k}: 0-23`, 400);
+  }
   if (body.aiLeadFields != null && body.aiLeadFields.length > 1500) {
     return jsonError("Слишком много полей лида (макс 1500 символов)", 400);
   }

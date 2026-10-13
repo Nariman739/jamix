@@ -13,5 +13,5 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["src/**/*", "../src/generated/prisma/**/*"]
+  "include": ["src/**/*", "../src/generated/prisma/**/*", "../src/lib/bot-prompt.ts"]
 }
