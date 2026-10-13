@@ -33,7 +33,9 @@ export async function POST(req: NextRequest) {
   const label = businessName ? `${businessName}` : "Мой WhatsApp";
 
   const data = {
-    aiEnabled: true,
+    // Бот включается владельцем кнопкой после проверки в тест-чате и настройки расписания,
+    // а не в момент сканирования QR (иначе отвечает всем контактам номера 24/7 — аудит П1)
+    aiEnabled: false,
     aiSystemPrompt: systemPrompt,
     aiBusinessName: businessName,
     aiKnowledgeBase: knowledgeBase,

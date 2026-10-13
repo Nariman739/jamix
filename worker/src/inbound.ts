@@ -84,6 +84,12 @@ export async function handleUpsert(
 ): Promise<void> {
   // 'notify' — живые сообщения; 'append' — накопившиеся, пока устройство было офлайн (деплой, обрыв).
   // История при первом подключении приходит другим событием (messaging-history.set) и сюда не попадает.
+  if (process.env.WA_LOG_LEVEL) {
+    console.log(
+      `[in] upsert type=${ev.type} n=${ev.messages.length} ` +
+        ev.messages.map((m) => `${maskJid(m.key.remoteJid || "?")}${m.key.fromMe ? "/me" : ""}:${m.message ? getContentType(normalizeMessageContent(m.message) ?? undefined) ?? "?" : "stub" + (m.messageStubType ?? "")}`).join(" "),
+    );
+  }
   if (ev.type !== "notify" && ev.type !== "append") return;
   const offline = ev.type === "append";
 
@@ -110,12 +116,19 @@ async function handleOne(instanceId: string, sock: WASocket, msg: WAMessage, off
   if (!content) return;
   const waId = msg.key.id ?? null;
 
+  // Baileys при подключении досылает историю чатов телефона тоже как 'append'. Это чужая переписка
+  // владельца (семья, друзья, коды из банка) — её нельзя ни сохранять, ни считать «ответом менеджера».
+  // Берём только свежее: что пришло, пока воркер был офлайн считанные минуты.
+  if (offline && Date.now() - msgTimestampMs(msg) > OFFLINE_MAX_AGE_MS) return;
+
   const keyAny = msg.key as unknown as Record<string, string | undefined>;
   const phoneSrc = keyAny.senderPn || keyAny.participantPn || keyAny.remoteJidAlt;
   const phoneNumber =
     phoneSrc?.replace(/[^0-9]/g, "") || (remoteJid.endsWith("@s.whatsapp.net") ? remoteJid.split("@")[0] : null);
 
   if (msg.key.fromMe) {
+    // Старые свои сообщения (история) — не «менеджер только что ответил»
+    if (Date.now() - msgTimestampMs(msg) > OFFLINE_MAX_AGE_MS) return;
     await handleManual({ instanceId, remoteJid, phoneNumber, waId, content });
     return;
   }
@@ -180,9 +193,8 @@ async function handleOne(instanceId: string, sock: WASocket, msg: WAMessage, off
   // Менеджер ведёт этот чат сам
   if (chat.aiPausedUntil && chat.aiPausedUntil > new Date()) return;
 
-  // Офлайн-сообщения: отвечаем только свежим и только если после них никто не ответил
+  // Офлайн-сообщения: отвечаем только если после них никто не ответил
   if (offline) {
-    if (Date.now() - msgTimestampMs(msg) > OFFLINE_MAX_AGE_MS) return;
     const later = await prisma.message.findFirst({
       where: { chatId: chat.id, fromMe: true, createdAt: { gt: new Date(msgTimestampMs(msg)) } },
       select: { id: true },

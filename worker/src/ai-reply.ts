@@ -124,13 +124,19 @@ export async function generateAiReply(args: {
     const res = await getClient().chat.completions.create({
       model: inst.aiModel || DEFAULT_MODEL,
       messages,
-      max_tokens: 350,
+      // Кириллица ~1 токен на 1–2 символа + JSON лида с русскими ключами ~150 токенов: 350 обрезало ответы
+      max_tokens: 900,
       temperature: 0.3,
+      // OpenRouter: у Sonnet 5.5 рассуждения включены по умолчанию — ~300 токенов на каждый ответ впустую
+      ...({ reasoning: { enabled: false } } as object),
     });
     const raw = res.choices[0]?.message?.content?.trim() || "";
+    const finish = res.choices[0]?.finish_reason;
     if (res.usage) {
-      console.log(`[ai] ${inst.id} usage in=${res.usage.prompt_tokens} out=${res.usage.completion_tokens}`);
+      console.log(`[ai] ${inst.id} usage in=${res.usage.prompt_tokens} out=${res.usage.completion_tokens} finish=${finish}`);
     }
+    if (finish === "length") console.warn(`[ai] ${inst.id} reply truncated by max_tokens`);
+    if (process.env.WA_LOG_LEVEL) console.log(`[ai] raw: ${raw.replace(/\n/g, " ⏎ ").slice(0, 400)}`);
     if (!raw) return null;
 
     const result = parseControlTokens(raw);

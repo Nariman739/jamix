@@ -84,8 +84,9 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const res = await getClient().chat.completions.create({
       model,
       messages: [{ role: "system", content: system }, ...history],
-      max_tokens: 350,
+      max_tokens: 900,
       temperature: 0.3,
+      ...({ reasoning: { enabled: false } } as object),
     });
     const raw = res.choices[0]?.message?.content?.trim() || "";
     const parsed = parseControlTokens(raw);

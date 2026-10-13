@@ -2,7 +2,8 @@
 # Собирается из корня репозитория: docker build -f worker/Dockerfile .
 # Нужен корень, потому что воркер компилирует ../src/generated/prisma.
 
-FROM node:22-bookworm-slim AS build
+# Форк Baileys — ESM, воркер — CommonJS: нужен require(esm), то есть Node ≥ 22.12. Тег закреплён.
+FROM node:22.12-bookworm-slim AS build
 WORKDIR /app
 
 # Корневые зависимости — только ради сгенерированного Prisma-клиента (он закоммичен в src/generated/prisma,
@@ -20,13 +21,13 @@ COPY src/lib/bot-prompt.ts ./src/lib/bot-prompt.ts
 RUN mkdir -p node_modules/@prisma && ln -s /app/worker/node_modules/@prisma/client node_modules/@prisma/client
 COPY worker/tsconfig.json ./worker/
 COPY worker/src ./worker/src
-RUN cd worker && npm run build
+RUN cd worker && npm run build && npm prune --omit=dev
 
-FROM node:22-bookworm-slim
+FROM node:22.12-bookworm-slim
 WORKDIR /app/worker
 ENV NODE_ENV=production
-COPY --from=build /app/worker/node_modules ./node_modules
-COPY --from=build /app/worker/dist ./dist
-COPY --from=build /app/worker/package.json ./package.json
-# Тихий health для Fly: процесс без HTTP, проверяем по живости.
+COPY --from=build --chown=node:node /app/worker/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/worker/dist ./dist
+COPY --from=build --chown=node:node /app/worker/package.json ./package.json
+USER node
 CMD ["node", "dist/worker/src/index.js"]
