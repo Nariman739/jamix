@@ -30,12 +30,16 @@ export type WAInstanceAvgAggregateOutputType = {
   aiMaxTurns: number | null
   aiWorkStartHr: number | null
   aiWorkEndHr: number | null
+  aiWorkDays: number | null
+  aiDigestHour: number | null
 }
 
 export type WAInstanceSumAggregateOutputType = {
   aiMaxTurns: number | null
   aiWorkStartHr: number | null
   aiWorkEndHr: number | null
+  aiWorkDays: number[]
+  aiDigestHour: number | null
 }
 
 export type WAInstanceMinAggregateOutputType = {
@@ -61,10 +65,18 @@ export type WAInstanceMinAggregateOutputType = {
   aiOnlyDuringHrs: boolean | null
   aiWorkStartHr: number | null
   aiWorkEndHr: number | null
+  aiTimezone: string | null
+  aiOffDaysActive: boolean | null
   aiEscalateOnHotLead: boolean | null
   aiEscalateOnHandoff: boolean | null
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  aiLeadFields: string | null
+  aiReportGroupJid: string | null
+  aiReportGroupName: string | null
+  aiDailyDigest: boolean | null
+  aiDigestHour: number | null
+  lastDigestDate: string | null
   connectedAt: Date | null
   onlyReplies: boolean | null
   bulkPausedUntil: Date | null
@@ -95,10 +107,18 @@ export type WAInstanceMaxAggregateOutputType = {
   aiOnlyDuringHrs: boolean | null
   aiWorkStartHr: number | null
   aiWorkEndHr: number | null
+  aiTimezone: string | null
+  aiOffDaysActive: boolean | null
   aiEscalateOnHotLead: boolean | null
   aiEscalateOnHandoff: boolean | null
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  aiLeadFields: string | null
+  aiReportGroupJid: string | null
+  aiReportGroupName: string | null
+  aiDailyDigest: boolean | null
+  aiDigestHour: number | null
+  lastDigestDate: string | null
   connectedAt: Date | null
   onlyReplies: boolean | null
   bulkPausedUntil: Date | null
@@ -129,11 +149,21 @@ export type WAInstanceCountAggregateOutputType = {
   aiOnlyDuringHrs: number
   aiWorkStartHr: number
   aiWorkEndHr: number
+  aiTimezone: number
+  aiWorkDays: number
+  aiOffDaysActive: number
   aiPausedChats: number
   aiEscalateOnHotLead: number
   aiEscalateOnHandoff: number
   aiHandoffMessage: number
   aiKnowledgeBase: number
+  aiLeadFields: number
+  aiReportGroupJid: number
+  aiReportGroupName: number
+  groupsCache: number
+  aiDailyDigest: number
+  aiDigestHour: number
+  lastDigestDate: number
   connectedAt: number
   onlyReplies: number
   bulkPausedUntil: number
@@ -147,12 +177,16 @@ export type WAInstanceAvgAggregateInputType = {
   aiMaxTurns?: true
   aiWorkStartHr?: true
   aiWorkEndHr?: true
+  aiWorkDays?: true
+  aiDigestHour?: true
 }
 
 export type WAInstanceSumAggregateInputType = {
   aiMaxTurns?: true
   aiWorkStartHr?: true
   aiWorkEndHr?: true
+  aiWorkDays?: true
+  aiDigestHour?: true
 }
 
 export type WAInstanceMinAggregateInputType = {
@@ -178,10 +212,18 @@ export type WAInstanceMinAggregateInputType = {
   aiOnlyDuringHrs?: true
   aiWorkStartHr?: true
   aiWorkEndHr?: true
+  aiTimezone?: true
+  aiOffDaysActive?: true
   aiEscalateOnHotLead?: true
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  aiLeadFields?: true
+  aiReportGroupJid?: true
+  aiReportGroupName?: true
+  aiDailyDigest?: true
+  aiDigestHour?: true
+  lastDigestDate?: true
   connectedAt?: true
   onlyReplies?: true
   bulkPausedUntil?: true
@@ -212,10 +254,18 @@ export type WAInstanceMaxAggregateInputType = {
   aiOnlyDuringHrs?: true
   aiWorkStartHr?: true
   aiWorkEndHr?: true
+  aiTimezone?: true
+  aiOffDaysActive?: true
   aiEscalateOnHotLead?: true
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  aiLeadFields?: true
+  aiReportGroupJid?: true
+  aiReportGroupName?: true
+  aiDailyDigest?: true
+  aiDigestHour?: true
+  lastDigestDate?: true
   connectedAt?: true
   onlyReplies?: true
   bulkPausedUntil?: true
@@ -246,11 +296,21 @@ export type WAInstanceCountAggregateInputType = {
   aiOnlyDuringHrs?: true
   aiWorkStartHr?: true
   aiWorkEndHr?: true
+  aiTimezone?: true
+  aiWorkDays?: true
+  aiOffDaysActive?: true
   aiPausedChats?: true
   aiEscalateOnHotLead?: true
   aiEscalateOnHandoff?: true
   aiHandoffMessage?: true
   aiKnowledgeBase?: true
+  aiLeadFields?: true
+  aiReportGroupJid?: true
+  aiReportGroupName?: true
+  groupsCache?: true
+  aiDailyDigest?: true
+  aiDigestHour?: true
+  lastDigestDate?: true
   connectedAt?: true
   onlyReplies?: true
   bulkPausedUntil?: true
@@ -368,11 +428,21 @@ export type WAInstanceGroupByOutputType = {
   aiOnlyDuringHrs: boolean
   aiWorkStartHr: number | null
   aiWorkEndHr: number | null
+  aiTimezone: string
+  aiWorkDays: number[]
+  aiOffDaysActive: boolean
   aiPausedChats: string[]
   aiEscalateOnHotLead: boolean
   aiEscalateOnHandoff: boolean
   aiHandoffMessage: string | null
   aiKnowledgeBase: string | null
+  aiLeadFields: string | null
+  aiReportGroupJid: string | null
+  aiReportGroupName: string | null
+  groupsCache: runtime.JsonValue | null
+  aiDailyDigest: boolean
+  aiDigestHour: number
+  lastDigestDate: string | null
   connectedAt: Date | null
   onlyReplies: boolean
   bulkPausedUntil: Date | null
@@ -426,11 +496,21 @@ export type WAInstanceWhereInput = {
   aiOnlyDuringHrs?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiWorkStartHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
   aiWorkEndHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
+  aiTimezone?: Prisma.StringFilter<"WAInstance"> | string
+  aiWorkDays?: Prisma.IntNullableListFilter<"WAInstance">
+  aiOffDaysActive?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiPausedChats?: Prisma.StringNullableListFilter<"WAInstance">
   aiEscalateOnHotLead?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiLeadFields?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupJid?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupName?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  groupsCache?: Prisma.JsonNullableFilter<"WAInstance">
+  aiDailyDigest?: Prisma.BoolFilter<"WAInstance"> | boolean
+  aiDigestHour?: Prisma.IntFilter<"WAInstance"> | number
+  lastDigestDate?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
   bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
@@ -467,11 +547,21 @@ export type WAInstanceOrderByWithRelationInput = {
   aiOnlyDuringHrs?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrderInput | Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiTimezone?: Prisma.SortOrder
+  aiWorkDays?: Prisma.SortOrder
+  aiOffDaysActive?: Prisma.SortOrder
   aiPausedChats?: Prisma.SortOrder
   aiEscalateOnHotLead?: Prisma.SortOrder
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiLeadFields?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReportGroupJid?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReportGroupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupsCache?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiDailyDigest?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
+  lastDigestDate?: Prisma.SortOrderInput | Prisma.SortOrder
   connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   onlyReplies?: Prisma.SortOrder
   bulkPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -511,11 +601,21 @@ export type WAInstanceWhereUniqueInput = Prisma.AtLeast<{
   aiOnlyDuringHrs?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiWorkStartHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
   aiWorkEndHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
+  aiTimezone?: Prisma.StringFilter<"WAInstance"> | string
+  aiWorkDays?: Prisma.IntNullableListFilter<"WAInstance">
+  aiOffDaysActive?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiPausedChats?: Prisma.StringNullableListFilter<"WAInstance">
   aiEscalateOnHotLead?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiLeadFields?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupJid?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupName?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  groupsCache?: Prisma.JsonNullableFilter<"WAInstance">
+  aiDailyDigest?: Prisma.BoolFilter<"WAInstance"> | boolean
+  aiDigestHour?: Prisma.IntFilter<"WAInstance"> | number
+  lastDigestDate?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
   bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
@@ -552,11 +652,21 @@ export type WAInstanceOrderByWithAggregationInput = {
   aiOnlyDuringHrs?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrderInput | Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiTimezone?: Prisma.SortOrder
+  aiWorkDays?: Prisma.SortOrder
+  aiOffDaysActive?: Prisma.SortOrder
   aiPausedChats?: Prisma.SortOrder
   aiEscalateOnHotLead?: Prisma.SortOrder
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiLeadFields?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReportGroupJid?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReportGroupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupsCache?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiDailyDigest?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
+  lastDigestDate?: Prisma.SortOrderInput | Prisma.SortOrder
   connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   onlyReplies?: Prisma.SortOrder
   bulkPausedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -595,11 +705,21 @@ export type WAInstanceScalarWhereWithAggregatesInput = {
   aiOnlyDuringHrs?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   aiWorkStartHr?: Prisma.IntNullableWithAggregatesFilter<"WAInstance"> | number | null
   aiWorkEndHr?: Prisma.IntNullableWithAggregatesFilter<"WAInstance"> | number | null
+  aiTimezone?: Prisma.StringWithAggregatesFilter<"WAInstance"> | string
+  aiWorkDays?: Prisma.IntNullableListFilter<"WAInstance">
+  aiOffDaysActive?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   aiPausedChats?: Prisma.StringNullableListFilter<"WAInstance">
   aiEscalateOnHotLead?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   aiEscalateOnHandoff?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
+  aiLeadFields?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
+  aiReportGroupJid?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
+  aiReportGroupName?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
+  groupsCache?: Prisma.JsonNullableWithAggregatesFilter<"WAInstance">
+  aiDailyDigest?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
+  aiDigestHour?: Prisma.IntWithAggregatesFilter<"WAInstance"> | number
+  lastDigestDate?: Prisma.StringNullableWithAggregatesFilter<"WAInstance"> | string | null
   connectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WAInstance"> | Date | string | null
   onlyReplies?: Prisma.BoolWithAggregatesFilter<"WAInstance"> | boolean
   bulkPausedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"WAInstance"> | Date | string | null
@@ -628,11 +748,21 @@ export type WAInstanceCreateInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -669,11 +799,21 @@ export type WAInstanceUncheckedCreateInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -706,11 +846,21 @@ export type WAInstanceUpdateInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -747,11 +897,21 @@ export type WAInstanceUncheckedUpdateInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -786,11 +946,21 @@ export type WAInstanceCreateManyInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -819,11 +989,21 @@ export type WAInstanceUpdateManyMutationInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -854,11 +1034,21 @@ export type WAInstanceUncheckedUpdateManyInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -874,6 +1064,14 @@ export type WAInstanceListRelationFilter = {
 
 export type WAInstanceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type IntNullableListFilter<$PrismaModel = never> = {
+  equals?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  has?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
+  hasEvery?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
+  hasSome?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type StringNullableListFilter<$PrismaModel = never> = {
@@ -907,11 +1105,21 @@ export type WAInstanceCountOrderByAggregateInput = {
   aiOnlyDuringHrs?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrder
+  aiTimezone?: Prisma.SortOrder
+  aiWorkDays?: Prisma.SortOrder
+  aiOffDaysActive?: Prisma.SortOrder
   aiPausedChats?: Prisma.SortOrder
   aiEscalateOnHotLead?: Prisma.SortOrder
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  aiLeadFields?: Prisma.SortOrder
+  aiReportGroupJid?: Prisma.SortOrder
+  aiReportGroupName?: Prisma.SortOrder
+  groupsCache?: Prisma.SortOrder
+  aiDailyDigest?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
+  lastDigestDate?: Prisma.SortOrder
   connectedAt?: Prisma.SortOrder
   onlyReplies?: Prisma.SortOrder
   bulkPausedUntil?: Prisma.SortOrder
@@ -923,6 +1131,8 @@ export type WAInstanceAvgOrderByAggregateInput = {
   aiMaxTurns?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrder
+  aiWorkDays?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
 }
 
 export type WAInstanceMaxOrderByAggregateInput = {
@@ -948,10 +1158,18 @@ export type WAInstanceMaxOrderByAggregateInput = {
   aiOnlyDuringHrs?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrder
+  aiTimezone?: Prisma.SortOrder
+  aiOffDaysActive?: Prisma.SortOrder
   aiEscalateOnHotLead?: Prisma.SortOrder
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  aiLeadFields?: Prisma.SortOrder
+  aiReportGroupJid?: Prisma.SortOrder
+  aiReportGroupName?: Prisma.SortOrder
+  aiDailyDigest?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
+  lastDigestDate?: Prisma.SortOrder
   connectedAt?: Prisma.SortOrder
   onlyReplies?: Prisma.SortOrder
   bulkPausedUntil?: Prisma.SortOrder
@@ -982,10 +1200,18 @@ export type WAInstanceMinOrderByAggregateInput = {
   aiOnlyDuringHrs?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrder
+  aiTimezone?: Prisma.SortOrder
+  aiOffDaysActive?: Prisma.SortOrder
   aiEscalateOnHotLead?: Prisma.SortOrder
   aiEscalateOnHandoff?: Prisma.SortOrder
   aiHandoffMessage?: Prisma.SortOrder
   aiKnowledgeBase?: Prisma.SortOrder
+  aiLeadFields?: Prisma.SortOrder
+  aiReportGroupJid?: Prisma.SortOrder
+  aiReportGroupName?: Prisma.SortOrder
+  aiDailyDigest?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
+  lastDigestDate?: Prisma.SortOrder
   connectedAt?: Prisma.SortOrder
   onlyReplies?: Prisma.SortOrder
   bulkPausedUntil?: Prisma.SortOrder
@@ -997,6 +1223,8 @@ export type WAInstanceSumOrderByAggregateInput = {
   aiMaxTurns?: Prisma.SortOrder
   aiWorkStartHr?: Prisma.SortOrder
   aiWorkEndHr?: Prisma.SortOrder
+  aiWorkDays?: Prisma.SortOrder
+  aiDigestHour?: Prisma.SortOrder
 }
 
 export type WAInstanceScalarRelationFilter = {
@@ -1088,6 +1316,10 @@ export type WAInstanceUncheckedUpdateManyWithoutWorkerNodeNestedInput = {
   deleteMany?: Prisma.WAInstanceScalarWhereInput | Prisma.WAInstanceScalarWhereInput[]
 }
 
+export type WAInstanceCreateaiWorkDaysInput = {
+  set: number[]
+}
+
 export type WAInstanceCreateaiPausedChatsInput = {
   set: string[]
 }
@@ -1098,6 +1330,11 @@ export type EnumWAStatusFieldUpdateOperationsInput = {
 
 export type NullableBytesFieldUpdateOperationsInput = {
   set?: runtime.Bytes | null
+}
+
+export type WAInstanceUpdateaiWorkDaysInput = {
+  set?: number[]
+  push?: number | number[]
 }
 
 export type WAInstanceUpdateaiPausedChatsInput = {
@@ -1182,11 +1419,21 @@ export type WAInstanceCreateWithoutTenantInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1221,11 +1468,21 @@ export type WAInstanceUncheckedCreateWithoutTenantInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1289,11 +1546,21 @@ export type WAInstanceScalarWhereInput = {
   aiOnlyDuringHrs?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiWorkStartHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
   aiWorkEndHr?: Prisma.IntNullableFilter<"WAInstance"> | number | null
+  aiTimezone?: Prisma.StringFilter<"WAInstance"> | string
+  aiWorkDays?: Prisma.IntNullableListFilter<"WAInstance">
+  aiOffDaysActive?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiPausedChats?: Prisma.StringNullableListFilter<"WAInstance">
   aiEscalateOnHotLead?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiEscalateOnHandoff?: Prisma.BoolFilter<"WAInstance"> | boolean
   aiHandoffMessage?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   aiKnowledgeBase?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiLeadFields?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupJid?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  aiReportGroupName?: Prisma.StringNullableFilter<"WAInstance"> | string | null
+  groupsCache?: Prisma.JsonNullableFilter<"WAInstance">
+  aiDailyDigest?: Prisma.BoolFilter<"WAInstance"> | boolean
+  aiDigestHour?: Prisma.IntFilter<"WAInstance"> | number
+  lastDigestDate?: Prisma.StringNullableFilter<"WAInstance"> | string | null
   connectedAt?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
   onlyReplies?: Prisma.BoolFilter<"WAInstance"> | boolean
   bulkPausedUntil?: Prisma.DateTimeNullableFilter<"WAInstance"> | Date | string | null
@@ -1322,11 +1589,21 @@ export type WAInstanceCreateWithoutWorkerNodeInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1361,11 +1638,21 @@ export type WAInstanceUncheckedCreateWithoutWorkerNodeInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1424,11 +1711,21 @@ export type WAInstanceCreateWithoutBlockedContactsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1464,11 +1761,21 @@ export type WAInstanceUncheckedCreateWithoutBlockedContactsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1516,11 +1823,21 @@ export type WAInstanceUpdateWithoutBlockedContactsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1556,11 +1873,21 @@ export type WAInstanceUncheckedUpdateWithoutBlockedContactsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1592,11 +1919,21 @@ export type WAInstanceCreateWithoutChatsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1632,11 +1969,21 @@ export type WAInstanceUncheckedCreateWithoutChatsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1684,11 +2031,21 @@ export type WAInstanceUpdateWithoutChatsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1724,11 +2081,21 @@ export type WAInstanceUncheckedUpdateWithoutChatsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1760,11 +2127,21 @@ export type WAInstanceCreateWithoutMessagesInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1800,11 +2177,21 @@ export type WAInstanceUncheckedCreateWithoutMessagesInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1852,11 +2239,21 @@ export type WAInstanceUpdateWithoutMessagesInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1892,11 +2289,21 @@ export type WAInstanceUncheckedUpdateWithoutMessagesInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1928,11 +2335,21 @@ export type WAInstanceCreateWithoutJobsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -1968,11 +2385,21 @@ export type WAInstanceUncheckedCreateWithoutJobsInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -2020,11 +2447,21 @@ export type WAInstanceUpdateWithoutJobsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2060,11 +2497,21 @@ export type WAInstanceUncheckedUpdateWithoutJobsInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2097,11 +2544,21 @@ export type WAInstanceCreateManyTenantInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -2130,11 +2587,21 @@ export type WAInstanceUpdateWithoutTenantInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2169,11 +2636,21 @@ export type WAInstanceUncheckedUpdateWithoutTenantInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2207,11 +2684,21 @@ export type WAInstanceUncheckedUpdateManyWithoutTenantInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2241,11 +2728,21 @@ export type WAInstanceCreateManyWorkerNodeInput = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: number | null
   aiWorkEndHr?: number | null
+  aiTimezone?: string
+  aiWorkDays?: Prisma.WAInstanceCreateaiWorkDaysInput | number[]
+  aiOffDaysActive?: boolean
   aiPausedChats?: Prisma.WAInstanceCreateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: string | null
   aiKnowledgeBase?: string | null
+  aiLeadFields?: string | null
+  aiReportGroupJid?: string | null
+  aiReportGroupName?: string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: boolean
+  aiDigestHour?: number
+  lastDigestDate?: string | null
   connectedAt?: Date | string | null
   onlyReplies?: boolean
   bulkPausedUntil?: Date | string | null
@@ -2274,11 +2771,21 @@ export type WAInstanceUpdateWithoutWorkerNodeInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2313,11 +2820,21 @@ export type WAInstanceUncheckedUpdateWithoutWorkerNodeInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2351,11 +2868,21 @@ export type WAInstanceUncheckedUpdateManyWithoutWorkerNodeInput = {
   aiOnlyDuringHrs?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiWorkStartHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiWorkEndHr?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  aiWorkDays?: Prisma.WAInstanceUpdateaiWorkDaysInput | number[]
+  aiOffDaysActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiPausedChats?: Prisma.WAInstanceUpdateaiPausedChatsInput | string[]
   aiEscalateOnHotLead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiEscalateOnHandoff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiHandoffMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKnowledgeBase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiLeadFields?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupJid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReportGroupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupsCache?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiDailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  lastDigestDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlyReplies?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bulkPausedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2444,11 +2971,21 @@ export type WAInstanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: boolean
   aiWorkEndHr?: boolean
+  aiTimezone?: boolean
+  aiWorkDays?: boolean
+  aiOffDaysActive?: boolean
   aiPausedChats?: boolean
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  aiLeadFields?: boolean
+  aiReportGroupJid?: boolean
+  aiReportGroupName?: boolean
+  groupsCache?: boolean
+  aiDailyDigest?: boolean
+  aiDigestHour?: boolean
+  lastDigestDate?: boolean
   connectedAt?: boolean
   onlyReplies?: boolean
   bulkPausedUntil?: boolean
@@ -2486,11 +3023,21 @@ export type WAInstanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: boolean
   aiWorkEndHr?: boolean
+  aiTimezone?: boolean
+  aiWorkDays?: boolean
+  aiOffDaysActive?: boolean
   aiPausedChats?: boolean
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  aiLeadFields?: boolean
+  aiReportGroupJid?: boolean
+  aiReportGroupName?: boolean
+  groupsCache?: boolean
+  aiDailyDigest?: boolean
+  aiDigestHour?: boolean
+  lastDigestDate?: boolean
   connectedAt?: boolean
   onlyReplies?: boolean
   bulkPausedUntil?: boolean
@@ -2523,11 +3070,21 @@ export type WAInstanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: boolean
   aiWorkEndHr?: boolean
+  aiTimezone?: boolean
+  aiWorkDays?: boolean
+  aiOffDaysActive?: boolean
   aiPausedChats?: boolean
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  aiLeadFields?: boolean
+  aiReportGroupJid?: boolean
+  aiReportGroupName?: boolean
+  groupsCache?: boolean
+  aiDailyDigest?: boolean
+  aiDigestHour?: boolean
+  lastDigestDate?: boolean
   connectedAt?: boolean
   onlyReplies?: boolean
   bulkPausedUntil?: boolean
@@ -2560,11 +3117,21 @@ export type WAInstanceSelectScalar = {
   aiOnlyDuringHrs?: boolean
   aiWorkStartHr?: boolean
   aiWorkEndHr?: boolean
+  aiTimezone?: boolean
+  aiWorkDays?: boolean
+  aiOffDaysActive?: boolean
   aiPausedChats?: boolean
   aiEscalateOnHotLead?: boolean
   aiEscalateOnHandoff?: boolean
   aiHandoffMessage?: boolean
   aiKnowledgeBase?: boolean
+  aiLeadFields?: boolean
+  aiReportGroupJid?: boolean
+  aiReportGroupName?: boolean
+  groupsCache?: boolean
+  aiDailyDigest?: boolean
+  aiDigestHour?: boolean
+  lastDigestDate?: boolean
   connectedAt?: boolean
   onlyReplies?: boolean
   bulkPausedUntil?: boolean
@@ -2572,7 +3139,7 @@ export type WAInstanceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type WAInstanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "label" | "phoneNumber" | "status" | "workerNodeId" | "webhookUrl" | "webhookSecret" | "sessionBlob" | "qrCode" | "qrExpiresAt" | "lastSeenAt" | "bannedAt" | "aiEnabled" | "aiModel" | "aiSystemPrompt" | "aiBusinessName" | "aiGreeting" | "aiMaxTurns" | "aiOnlyDuringHrs" | "aiWorkStartHr" | "aiWorkEndHr" | "aiPausedChats" | "aiEscalateOnHotLead" | "aiEscalateOnHandoff" | "aiHandoffMessage" | "aiKnowledgeBase" | "connectedAt" | "onlyReplies" | "bulkPausedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["wAInstance"]>
+export type WAInstanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "label" | "phoneNumber" | "status" | "workerNodeId" | "webhookUrl" | "webhookSecret" | "sessionBlob" | "qrCode" | "qrExpiresAt" | "lastSeenAt" | "bannedAt" | "aiEnabled" | "aiModel" | "aiSystemPrompt" | "aiBusinessName" | "aiGreeting" | "aiMaxTurns" | "aiOnlyDuringHrs" | "aiWorkStartHr" | "aiWorkEndHr" | "aiTimezone" | "aiWorkDays" | "aiOffDaysActive" | "aiPausedChats" | "aiEscalateOnHotLead" | "aiEscalateOnHandoff" | "aiHandoffMessage" | "aiKnowledgeBase" | "aiLeadFields" | "aiReportGroupJid" | "aiReportGroupName" | "groupsCache" | "aiDailyDigest" | "aiDigestHour" | "lastDigestDate" | "connectedAt" | "onlyReplies" | "bulkPausedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["wAInstance"]>
 export type WAInstanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   workerNode?: boolean | Prisma.WAInstance$workerNodeArgs<ExtArgs>
@@ -2624,11 +3191,21 @@ export type $WAInstancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     aiOnlyDuringHrs: boolean
     aiWorkStartHr: number | null
     aiWorkEndHr: number | null
+    aiTimezone: string
+    aiWorkDays: number[]
+    aiOffDaysActive: boolean
     aiPausedChats: string[]
     aiEscalateOnHotLead: boolean
     aiEscalateOnHandoff: boolean
     aiHandoffMessage: string | null
     aiKnowledgeBase: string | null
+    aiLeadFields: string | null
+    aiReportGroupJid: string | null
+    aiReportGroupName: string | null
+    groupsCache: runtime.JsonValue | null
+    aiDailyDigest: boolean
+    aiDigestHour: number
+    lastDigestDate: string | null
     connectedAt: Date | null
     onlyReplies: boolean
     bulkPausedUntil: Date | null
@@ -3085,11 +3662,21 @@ export interface WAInstanceFieldRefs {
   readonly aiOnlyDuringHrs: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly aiWorkStartHr: Prisma.FieldRef<"WAInstance", 'Int'>
   readonly aiWorkEndHr: Prisma.FieldRef<"WAInstance", 'Int'>
+  readonly aiTimezone: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly aiWorkDays: Prisma.FieldRef<"WAInstance", 'Int[]'>
+  readonly aiOffDaysActive: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly aiPausedChats: Prisma.FieldRef<"WAInstance", 'String[]'>
   readonly aiEscalateOnHotLead: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly aiEscalateOnHandoff: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly aiHandoffMessage: Prisma.FieldRef<"WAInstance", 'String'>
   readonly aiKnowledgeBase: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly aiLeadFields: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly aiReportGroupJid: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly aiReportGroupName: Prisma.FieldRef<"WAInstance", 'String'>
+  readonly groupsCache: Prisma.FieldRef<"WAInstance", 'Json'>
+  readonly aiDailyDigest: Prisma.FieldRef<"WAInstance", 'Boolean'>
+  readonly aiDigestHour: Prisma.FieldRef<"WAInstance", 'Int'>
+  readonly lastDigestDate: Prisma.FieldRef<"WAInstance", 'String'>
   readonly connectedAt: Prisma.FieldRef<"WAInstance", 'DateTime'>
   readonly onlyReplies: Prisma.FieldRef<"WAInstance", 'Boolean'>
   readonly bulkPausedUntil: Prisma.FieldRef<"WAInstance", 'DateTime'>

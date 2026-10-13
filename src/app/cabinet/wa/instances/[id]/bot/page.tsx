@@ -54,7 +54,13 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
 
       <BotSettingsForm
         instanceId={instance.id}
+        groups={(instance.groupsCache as { jid: string; name: string; size?: number }[] | null) ?? []}
+        connected={instance.status === "CONNECTED"}
         initial={{
+          aiLeadFields: instance.aiLeadFields,
+          aiReportGroupJid: instance.aiReportGroupJid,
+          aiDailyDigest: instance.aiDailyDigest,
+          aiDigestHour: instance.aiDigestHour,
           aiEnabled: instance.aiEnabled,
           aiModel: instance.aiModel,
           aiSystemPrompt: instance.aiSystemPrompt,
@@ -64,6 +70,9 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
           aiOnlyDuringHrs: instance.aiOnlyDuringHrs,
           aiWorkStartHr: instance.aiWorkStartHr,
           aiWorkEndHr: instance.aiWorkEndHr,
+          aiTimezone: instance.aiTimezone,
+          aiWorkDays: instance.aiWorkDays,
+          aiOffDaysActive: instance.aiOffDaysActive,
           aiEscalateOnHotLead: instance.aiEscalateOnHotLead,
           aiEscalateOnHandoff: instance.aiEscalateOnHandoff,
           aiHandoffMessage: instance.aiHandoffMessage,

@@ -25,11 +25,53 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     aiOnlyDuringHrs: boolean;
     aiWorkStartHr: number | null;
     aiWorkEndHr: number | null;
+    aiTimezone: string;
+    aiWorkDays: number[];
+    aiOffDaysActive: boolean;
     aiEscalateOnHotLead: boolean;
     aiEscalateOnHandoff: boolean;
     aiHandoffMessage: string | null;
     aiKnowledgeBase: string | null;
+    aiLeadFields: string | null;
+    aiReportGroupJid: string | null;
+    aiDailyDigest: boolean;
+    aiDigestHour: number;
   }>;
+
+  if (body.aiDigestHour != null && (!Number.isInteger(body.aiDigestHour) || body.aiDigestHour < 0 || body.aiDigestHour > 23)) {
+    return jsonError("Час сводки: 0-23", 400);
+  }
+
+  if (body.aiLeadFields != null && body.aiLeadFields.length > 1500) {
+    return jsonError("Слишком много полей лида (макс 1500 символов)", 400);
+  }
+  let aiReportGroupName: string | null | undefined;
+  if (body.aiReportGroupJid !== undefined) {
+    if (body.aiReportGroupJid === null || body.aiReportGroupJid === "") {
+      body.aiReportGroupJid = null;
+      aiReportGroupName = null;
+    } else {
+      if (!/^[0-9-]+@g\.us$/.test(body.aiReportGroupJid)) {
+        return jsonError("Группа должна быть выбрана из списка", 400);
+      }
+      const groups = (r.instance.groupsCache as { jid: string; name: string }[] | null) ?? [];
+      aiReportGroupName = groups.find((g) => g.jid === body.aiReportGroupJid)?.name ?? null;
+    }
+  }
+
+  if (body.aiTimezone != null) {
+    try {
+      new Intl.DateTimeFormat("en-US", { timeZone: body.aiTimezone });
+    } catch {
+      return jsonError("Неизвестная таймзона", 400);
+    }
+  }
+  if (body.aiWorkDays != null) {
+    if (!Array.isArray(body.aiWorkDays) || body.aiWorkDays.some((d) => !Number.isInteger(d) || d < 1 || d > 7)) {
+      return jsonError("aiWorkDays: дни недели 1-7", 400);
+    }
+    body.aiWorkDays = Array.from(new Set(body.aiWorkDays)).sort();
+  }
 
   if (body.aiMaxTurns != null && (body.aiMaxTurns < 1 || body.aiMaxTurns > 50)) {
     return jsonError("aiMaxTurns должно быть 1-50", 400);
@@ -53,10 +95,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       ...(body.aiOnlyDuringHrs !== undefined && { aiOnlyDuringHrs: body.aiOnlyDuringHrs }),
       ...(body.aiWorkStartHr !== undefined && { aiWorkStartHr: body.aiWorkStartHr }),
       ...(body.aiWorkEndHr !== undefined && { aiWorkEndHr: body.aiWorkEndHr }),
+      ...(body.aiTimezone !== undefined && { aiTimezone: body.aiTimezone }),
+      ...(body.aiWorkDays !== undefined && { aiWorkDays: body.aiWorkDays }),
+      ...(body.aiOffDaysActive !== undefined && { aiOffDaysActive: body.aiOffDaysActive }),
       ...(body.aiEscalateOnHotLead !== undefined && { aiEscalateOnHotLead: body.aiEscalateOnHotLead }),
       ...(body.aiEscalateOnHandoff !== undefined && { aiEscalateOnHandoff: body.aiEscalateOnHandoff }),
       ...(body.aiHandoffMessage !== undefined && { aiHandoffMessage: body.aiHandoffMessage }),
       ...(body.aiKnowledgeBase !== undefined && { aiKnowledgeBase: body.aiKnowledgeBase }),
+      ...(body.aiLeadFields !== undefined && { aiLeadFields: body.aiLeadFields || null }),
+      ...(body.aiReportGroupJid !== undefined && { aiReportGroupJid: body.aiReportGroupJid, aiReportGroupName }),
+      ...(body.aiDailyDigest !== undefined && { aiDailyDigest: body.aiDailyDigest }),
+      ...(body.aiDigestHour !== undefined && { aiDigestHour: body.aiDigestHour }),
     },
   });
 
@@ -73,10 +122,18 @@ type InstanceRow = {
   aiOnlyDuringHrs: boolean;
   aiWorkStartHr: number | null;
   aiWorkEndHr: number | null;
+  aiTimezone: string;
+  aiWorkDays: number[];
+  aiOffDaysActive: boolean;
   aiEscalateOnHotLead: boolean;
   aiEscalateOnHandoff: boolean;
   aiHandoffMessage: string | null;
   aiKnowledgeBase: string | null;
+  aiLeadFields: string | null;
+  aiReportGroupJid: string | null;
+  aiReportGroupName: string | null;
+  aiDailyDigest: boolean;
+  aiDigestHour: number;
 };
 
 function pickBot(i: InstanceRow) {
@@ -90,9 +147,17 @@ function pickBot(i: InstanceRow) {
     aiOnlyDuringHrs: i.aiOnlyDuringHrs,
     aiWorkStartHr: i.aiWorkStartHr,
     aiWorkEndHr: i.aiWorkEndHr,
+    aiTimezone: i.aiTimezone,
+    aiWorkDays: i.aiWorkDays,
+    aiOffDaysActive: i.aiOffDaysActive,
     aiEscalateOnHotLead: i.aiEscalateOnHotLead,
     aiEscalateOnHandoff: i.aiEscalateOnHandoff,
     aiHandoffMessage: i.aiHandoffMessage,
     aiKnowledgeBase: i.aiKnowledgeBase,
+    aiLeadFields: i.aiLeadFields,
+    aiReportGroupJid: i.aiReportGroupJid,
+    aiReportGroupName: i.aiReportGroupName,
+    aiDailyDigest: i.aiDailyDigest,
+    aiDigestHour: i.aiDigestHour,
   };
 }

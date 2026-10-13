@@ -5,12 +5,14 @@ import { startInstance, stopInstance, shutdownAll, isManaged } from "./instance-
 import { tickOutbound } from "./outbound-handler";
 import { tickBulkDetection } from "./antiban";
 import { tickGlobalQuotaAlert } from "./quota";
+import { tickDailyDigest } from "./digest";
 
 const NODE_KEY = process.env.WORKER_NODE_KEY || os.hostname();
 const POLL_MS = 1500;
 const HEARTBEAT_MS = 30_000;
 const BULK_DETECT_MS = 60_000;
 const QUOTA_ALERT_MS = 5 * 60_000;
+const DIGEST_MS = 5 * 60_000;
 
 async function registerNode() {
   const node = await prisma.workerNode.upsert({
@@ -49,11 +51,14 @@ function countManaged(): number {
 
 async function claimAndStartInstances(nodeId: string) {
   // Pick up: not yet assigned to anyone, OR assigned to me but not running
+  // ТОЛЬКО id. Строка WAInstance несёт sessionBlob (~0,7 МБ на номер): тянуть её каждые 1,5 с
+  // = десятки ГБ трафика Neon в сутки (так в мае сгорел лимит за ночь).
   const candidates = await prisma.wAInstance.findMany({
     where: {
       status: { notIn: ["BANNED", "LOGGED_OUT"] },
       OR: [{ workerNodeId: null }, { workerNodeId: nodeId }],
     },
+    select: { id: true },
     take: 20,
   });
 
@@ -96,21 +101,30 @@ async function main() {
 
   const nodeId = await registerNode();
 
+  // Разные задачи — разная частота. Каждый запрос к Neon = трафик и не даёт компьюту уснуть,
+  // поэтому в простое опрашиваем редко: исходящие каждые 1,5 с (там ответы клиентам),
+  // новые номера раз в 5 с, протухшие QR раз в 15 с.
+  let tickNo = 0;
   const tick = async () => {
-    try {
-      await claimAndStartInstances(nodeId);
-    } catch (e) {
-      console.error("[worker] claim error:", formatError(e));
+    tickNo++;
+    if (tickNo % 3 === 1) {
+      try {
+        await claimAndStartInstances(nodeId);
+      } catch (e) {
+        console.error("[worker] claim error:", formatError(e));
+      }
     }
     try {
       await tickOutbound();
     } catch (e) {
       console.error("[worker] outbound error:", formatError(e));
     }
-    try {
-      await expireOldQRs();
-    } catch (e) {
-      console.error("[worker] expireQR error:", formatError(e));
+    if (tickNo % 10 === 1) {
+      try {
+        await expireOldQRs();
+      } catch (e) {
+        console.error("[worker] expireQR error:", formatError(e));
+      }
     }
   };
 
@@ -124,15 +138,20 @@ async function main() {
     () => tickGlobalQuotaAlert().catch((e) => console.error("[quota] alert error:", formatError(e))),
     QUOTA_ALERT_MS,
   );
+  const digestInterval = setInterval(
+    () => tickDailyDigest().catch((e) => console.error("[digest] tick error:", formatError(e))),
+    DIGEST_MS,
+  );
   await tick();
 
   const shutdown = async (signal: string) => {
     console.log(`[worker] ${signal} received, shutting down...`);
     clearInterval(tickInterval);
+    clearInterval(digestInterval);
     clearInterval(heartbeatInterval);
     clearInterval(bulkInterval);
     clearInterval(quotaAlertInterval);
-    shutdownAll();
+    await shutdownAll();
     await prisma.workerNode.update({
       where: { id: nodeId },
       data: { status: "OFFLINE" },

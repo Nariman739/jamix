@@ -28,9 +28,21 @@ const TEMPLATES = [
   },
 ];
 
+const LEAD_FIELD_PRESETS: { name: string; fields: string }[] = [
+  { name: "Туры и круизы", fields: "Имя\nГород\nИнтерес (тур или круиз)\nБыл ли в круизе\nДаты\nБюджет" },
+  { name: "Услуги и запись", fields: "Имя\nУслуга\nЖелаемая дата\nРайон" },
+  { name: "Ремонт и замер", fields: "Имя\nАдрес или район\nПлощадь\nСроки\nБюджет" },
+];
+
 interface Props {
   instanceId: string;
+  groups?: { jid: string; name: string; size?: number }[];
+  connected?: boolean;
   initial: {
+    aiLeadFields: string | null;
+    aiReportGroupJid: string | null;
+    aiDailyDigest: boolean;
+    aiDigestHour: number;
     aiEnabled: boolean;
     aiModel: string;
     aiSystemPrompt: string | null;
@@ -40,6 +52,9 @@ interface Props {
     aiOnlyDuringHrs: boolean;
     aiWorkStartHr: number | null;
     aiWorkEndHr: number | null;
+    aiTimezone: string;
+    aiWorkDays: number[];
+    aiOffDaysActive: boolean;
     aiEscalateOnHotLead: boolean;
     aiEscalateOnHandoff: boolean;
     aiHandoffMessage: string | null;
@@ -47,8 +62,38 @@ interface Props {
   };
 }
 
-export function BotSettingsForm({ instanceId, initial }: Props) {
+const TIMEZONES = [
+  { value: "Asia/Almaty", label: "Алматы, Астана (UTC+5)" },
+  { value: "Asia/Aqtobe", label: "Актобе, Атырау, Уральск (UTC+5)" },
+  { value: "Asia/Bishkek", label: "Бишкек (UTC+6)" },
+  { value: "Asia/Tashkent", label: "Ташкент (UTC+5)" },
+  { value: "Asia/Baku", label: "Баку (UTC+4)" },
+  { value: "Europe/Moscow", label: "Москва (UTC+3)" },
+  { value: "Asia/Yekaterinburg", label: "Екатеринбург (UTC+5)" },
+  { value: "Asia/Novosibirsk", label: "Новосибирск (UTC+7)" },
+  { value: "Asia/Dubai", label: "Дубай (UTC+4)" },
+  { value: "Europe/Istanbul", label: "Стамбул (UTC+3)" },
+];
+
+const DAYS = [
+  { n: 1, label: "Пн" },
+  { n: 2, label: "Вт" },
+  { n: 3, label: "Ср" },
+  { n: 4, label: "Чт" },
+  { n: 5, label: "Пт" },
+  { n: 6, label: "Сб" },
+  { n: 7, label: "Вс" },
+];
+
+const DAY_INPUT =
+  "w-full rounded-xl bg-muted/50 px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-brand-blue/50";
+
+export function BotSettingsForm({ instanceId, initial, groups = [], connected = false }: Props) {
   const [aiEnabled, setAiEnabled] = useState(initial.aiEnabled);
+  const [aiLeadFields, setAiLeadFields] = useState(initial.aiLeadFields || "");
+  const [aiReportGroupJid, setAiReportGroupJid] = useState(initial.aiReportGroupJid || "");
+  const [aiDailyDigest, setAiDailyDigest] = useState(initial.aiDailyDigest);
+  const [aiDigestHour, setAiDigestHour] = useState(initial.aiDigestHour ?? 9);
   const [aiSystemPrompt, setAiSystemPrompt] = useState(initial.aiSystemPrompt || "");
   const [aiBusinessName, setAiBusinessName] = useState(initial.aiBusinessName || "");
   const [aiGreeting, setAiGreeting] = useState(initial.aiGreeting || "");
@@ -56,6 +101,11 @@ export function BotSettingsForm({ instanceId, initial }: Props) {
   const [aiOnlyDuringHrs, setAiOnlyDuringHrs] = useState(initial.aiOnlyDuringHrs);
   const [aiWorkStartHr, setAiWorkStartHr] = useState(initial.aiWorkStartHr ?? 9);
   const [aiWorkEndHr, setAiWorkEndHr] = useState(initial.aiWorkEndHr ?? 19);
+  const [aiTimezone, setAiTimezone] = useState(initial.aiTimezone || "Asia/Almaty");
+  const [aiWorkDays, setAiWorkDays] = useState<number[]>(
+    initial.aiWorkDays?.length ? initial.aiWorkDays : [1, 2, 3, 4, 5, 6, 7],
+  );
+  const [aiOffDaysActive, setAiOffDaysActive] = useState(initial.aiOffDaysActive);
   const [aiEscalateOnHotLead, setAiEscalateOnHotLead] = useState(initial.aiEscalateOnHotLead);
   const [aiEscalateOnHandoff, setAiEscalateOnHandoff] = useState(initial.aiEscalateOnHandoff);
   const [aiHandoffMessage, setAiHandoffMessage] = useState(initial.aiHandoffMessage || "");
@@ -81,10 +131,17 @@ export function BotSettingsForm({ instanceId, initial }: Props) {
           aiOnlyDuringHrs,
           aiWorkStartHr: aiOnlyDuringHrs ? aiWorkStartHr : null,
           aiWorkEndHr: aiOnlyDuringHrs ? aiWorkEndHr : null,
+          aiTimezone,
+          aiWorkDays,
+          aiOffDaysActive,
           aiEscalateOnHotLead,
           aiEscalateOnHandoff,
           aiHandoffMessage: aiHandoffMessage || null,
           aiKnowledgeBase: aiKnowledgeBase || null,
+          aiLeadFields: aiLeadFields || null,
+          aiReportGroupJid: aiReportGroupJid || null,
+          aiDailyDigest,
+          aiDigestHour,
         }),
       });
       const data = await res.json();
@@ -273,7 +330,92 @@ export function BotSettingsForm({ instanceId, initial }: Props) {
       </div>
 
       <div className="glass rounded-2xl p-6 space-y-4">
-        <h2 className="font-semibold">Рабочие часы</h2>
+        <h2 className="font-semibold">Лиды и отчёты менеджерам</h2>
+        <p className="text-sm text-muted-foreground">
+          Бот по ходу разговора выясняет эти поля и, как только собрал, отправляет отчёт «# Report» в
+          группу WhatsApp и в Telegram. Одно поле на строку.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {LEAD_FIELD_PRESETS.map((p) => (
+            <button
+              key={p.name}
+              type="button"
+              onClick={() => setAiLeadFields(p.fields)}
+              className="rounded-full border border-border/50 px-3 py-1 text-xs hover:bg-muted/40 transition"
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        <textarea
+          id="aiLeadFields"
+          value={aiLeadFields}
+          onChange={(e) => setAiLeadFields(e.target.value)}
+          rows={5}
+          placeholder={"Имя\nГород\nИнтерес (тур или круиз)\nБыл ли в круизе\nДаты"}
+          className="w-full rounded-xl bg-muted/50 px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-brand-blue/50 font-mono"
+        />
+        <div>
+          <label htmlFor="aiReportGroupJid" className="text-sm text-muted-foreground mb-1 block">
+            Группа WhatsApp для отчётов
+          </label>
+          <select
+            id="aiReportGroupJid"
+            value={aiReportGroupJid}
+            onChange={(e) => setAiReportGroupJid(e.target.value)}
+            className={DAY_INPUT}
+          >
+            <option value="">Не отправлять в группу (только Telegram)</option>
+            {groups.map((g) => (
+              <option key={g.jid} value={g.jid}>
+                {g.name}
+                {g.size ? ` · ${g.size}` : ""}
+              </option>
+            ))}
+            {aiReportGroupJid && !groups.some((g) => g.jid === aiReportGroupJid) && (
+              <option value={aiReportGroupJid}>{initial.aiReportGroupJid === aiReportGroupJid ? "Выбранная группа" : aiReportGroupJid}</option>
+            )}
+          </select>
+          <p className="text-xs text-muted-foreground mt-1">
+            {groups.length
+              ? "Список групп, где состоит этот номер. Обновляется при каждом подключении номера."
+              : connected
+                ? "Список групп ещё загружается, обновите страницу через минуту."
+                : "Подключите номер, и здесь появятся его группы. Отчёт уходит от этого же номера."}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              id="aiDailyDigest"
+              type="checkbox"
+              checked={aiDailyDigest}
+              onChange={(e) => setAiDailyDigest(e.target.checked)}
+              className="w-5 h-5 rounded accent-brand-blue cursor-pointer"
+            />
+            <span className="text-sm">Утренняя сводка за вчера: диалоги, лиды, встречи</span>
+          </label>
+          {aiDailyDigest && (
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              в
+              <input
+                id="aiDigestHour"
+                type="number"
+                min={0}
+                max={23}
+                value={aiDigestHour}
+                onChange={(e) => setAiDigestHour(Math.min(23, Math.max(0, parseInt(e.target.value) || 0)))}
+                className="w-16 rounded-xl bg-muted/50 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-brand-blue/50"
+              />
+              :00 по часовому поясу из расписания
+            </label>
+          )}
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl p-6 space-y-4">
+        <h2 className="font-semibold">Расписание бота</h2>
 
         <label className="flex items-center gap-3 cursor-pointer">
           <input
@@ -283,34 +425,137 @@ export function BotSettingsForm({ instanceId, initial }: Props) {
             className="w-5 h-5 rounded accent-brand-blue cursor-pointer"
           />
           <span className="text-sm">
-            Отвечать только в рабочее время (иначе клиент увидит молчание бота)
+            Отвечать по расписанию (вне расписания бот молчит, пишет менеджер)
           </span>
         </label>
 
         {aiOnlyDuringHrs && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">С</label>
-              <input
-                type="number"
-                min={0}
-                max={23}
-                value={aiWorkStartHr}
-                onChange={(e) => setAiWorkStartHr(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl bg-muted/50 px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-brand-blue/50"
-              />
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAiWorkStartHr(18);
+                  setAiWorkEndHr(9);
+                  setAiWorkDays([1, 2, 3, 4, 5]);
+                  setAiOffDaysActive(true);
+                }}
+                className="rounded-full border border-border/50 px-3 py-1 text-xs hover:bg-muted/40 transition"
+              >
+                Подменять менеджера: вечером, ночью и в выходные
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAiWorkStartHr(9);
+                  setAiWorkEndHr(19);
+                  setAiWorkDays([1, 2, 3, 4, 5]);
+                  setAiOffDaysActive(false);
+                }}
+                className="rounded-full border border-border/50 px-3 py-1 text-xs hover:bg-muted/40 transition"
+              >
+                Только в рабочее время: 9–19, пн–пт
+              </button>
             </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">До</label>
-              <input
-                type="number"
-                min={0}
-                max={23}
-                value={aiWorkEndHr}
-                onChange={(e) => setAiWorkEndHr(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl bg-muted/50 px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-brand-blue/50"
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Бот отвечает с</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={aiWorkStartHr}
+                  onChange={(e) => setAiWorkStartHr(parseInt(e.target.value) || 0)}
+                  className={DAY_INPUT}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">до</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={aiWorkEndHr}
+                  onChange={(e) => setAiWorkEndHr(parseInt(e.target.value) || 0)}
+                  className={DAY_INPUT}
+                />
+              </div>
             </div>
+            {aiWorkStartHr > aiWorkEndHr && (
+              <p className="text-xs text-muted-foreground">
+                Окно через полночь: бот отвечает с {aiWorkStartHr}:00 до {aiWorkEndHr}:00 следующего дня.
+              </p>
+            )}
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Часовой пояс</label>
+              <select
+                value={aiTimezone}
+                onChange={(e) => setAiTimezone(e.target.value)}
+                className={DAY_INPUT}
+              >
+                {TIMEZONES.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Эти часы действуют в дни</label>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((d) => {
+                  const on = aiWorkDays.includes(d.n);
+                  return (
+                    <button
+                      key={d.n}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() =>
+                        setAiWorkDays((prev) =>
+                          on ? prev.filter((x) => x !== d.n) : [...prev, d.n].sort(),
+                        )
+                      }
+                      className={`w-11 rounded-xl py-2 text-sm transition ${
+                        on ? "bg-brand-blue text-white" : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {aiWorkDays.length < 7 && (
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">В остальные дни</label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      name="offdays"
+                      checked={aiOffDaysActive}
+                      onChange={() => setAiOffDaysActive(true)}
+                      className="accent-brand-blue"
+                    />
+                    бот отвечает весь день (менеджера нет, подменяет бот)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      name="offdays"
+                      checked={!aiOffDaysActive}
+                      onChange={() => setAiOffDaysActive(false)}
+                      className="accent-brand-blue"
+                    />
+                    бот молчит
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,7 +3,7 @@ import makeWASocket, {
   fetchLatestBaileysVersion,
   WASocket,
   proto,
-} from "@whiskeysockets/baileys";
+} from "baileys";
 import { Boom } from "@hapi/boom";
 import pino from "pino";
 import { prisma } from "./db";
@@ -14,24 +14,54 @@ import { detectDncRequest, blockContact } from "./antiban";
 import { checkAiQuota } from "./quota";
 import { sendTelegram } from "./telegram";
 
-const logger = pino({ level: "silent" });
+// WA_LOG_LEVEL=info|debug включает лог Baileys (диагностика привязки); по умолчанию тихо.
+const logger = pino({ level: process.env.WA_LOG_LEVEL || "silent" });
 const QR_TTL_SECONDS = 60;
 
 interface Holder {
   sock: WASocket;
   closing: boolean;
+  reachedServer: boolean; // был QR или open — значит сеть есть, цикл штатный
+  flush: () => Promise<void>; // дописать отложенную сессию в базу
 }
 
 const sockets = new Map<string, Holder>();
 
+// Переподключение с нарастающей паузой. Без этого при пропаже сети воркер долбил
+// WhatsApp десятками попыток в секунду (12.10.2026: 49 000 попыток за 40 минут).
+const RECONNECT_BASE_MS = 5_000;
+const RECONNECT_MAX_MS = 5 * 60_000;
+const reconnectTimers = new Map<string, NodeJS.Timeout>();
+const reconnectFailures = new Map<string, number>();
+
 export function isManaged(instanceId: string) {
-  return sockets.has(instanceId);
+  return sockets.has(instanceId) || reconnectTimers.has(instanceId);
+}
+
+function scheduleReconnect(instanceId: string, reachedServer: boolean) {
+  if (reconnectTimers.has(instanceId)) return;
+  // Если до сервера дошли (был QR или open) — это штатный цикл, пауза базовая.
+  // Если нет (сеть/DNS) — удваиваем до 5 минут.
+  const failures = reachedServer ? 0 : (reconnectFailures.get(instanceId) ?? 0) + 1;
+  reconnectFailures.set(instanceId, failures);
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** Math.max(0, failures - 1), RECONNECT_MAX_MS);
+  if (failures > 1) console.warn(`[wa] ${instanceId} reconnect in ${Math.round(delay / 1000)}s (failure #${failures})`);
+  const t = setTimeout(() => {
+    reconnectTimers.delete(instanceId);
+    startInstance(instanceId).catch((e) => console.error(`[wa] reconnect ${instanceId} failed:`, e));
+  }, delay);
+  reconnectTimers.set(instanceId, t);
 }
 
 export async function startInstance(instanceId: string): Promise<void> {
   if (sockets.has(instanceId)) return;
+  const pending = reconnectTimers.get(instanceId);
+  if (pending) {
+    clearTimeout(pending);
+    reconnectTimers.delete(instanceId);
+  }
 
-  const inst = await prisma.wAInstance.findUnique({ where: { id: instanceId } });
+  const inst = await prisma.wAInstance.findUnique({ where: { id: instanceId }, select: { id: true } });
   if (!inst) {
     console.warn(`[wa] startInstance: ${instanceId} not found`);
     return;
@@ -70,7 +100,7 @@ export async function startInstance(instanceId: string): Promise<void> {
     // ignore
   }
 
-  sockets.set(instanceId, { sock, closing: false });
+  sockets.set(instanceId, { sock, closing: false, reachedServer: false, flush: auth.flush });
   console.log(`[wa] ${instanceId} starting (Baileys ${version.join(".")})`);
 
   sock.ev.on("creds.update", auth.saveCreds);
@@ -79,6 +109,9 @@ export async function startInstance(instanceId: string): Promise<void> {
     const { connection, lastDisconnect, qr } = update;
 
     if (qr) {
+      const h = sockets.get(instanceId);
+      if (h) h.reachedServer = true;
+      reconnectFailures.delete(instanceId);
       const expiresAt = new Date(Date.now() + QR_TTL_SECONDS * 1000);
       await prisma.wAInstance.update({
         where: { id: instanceId },
@@ -88,6 +121,9 @@ export async function startInstance(instanceId: string): Promise<void> {
     }
 
     if (connection === "open") {
+      const h = sockets.get(instanceId);
+      if (h) h.reachedServer = true;
+      reconnectFailures.delete(instanceId);
       const me = sock.user;
       const phone = me?.id?.split(":")[0]?.split("@")[0] ?? null;
       // Set connectedAt only on first ever connect, so warm-up window starts once
@@ -107,6 +143,7 @@ export async function startInstance(instanceId: string): Promise<void> {
         },
       });
       console.log(`[wa] ${instanceId} connected as ${me?.id}`);
+      void refreshGroupsCache(instanceId, sock);
     }
 
     if (connection === "close") {
@@ -168,11 +205,7 @@ export async function startInstance(instanceId: string): Promise<void> {
           where: { id: instanceId },
           data: { status: "DISCONNECTED" },
         });
-        setTimeout(() => {
-          startInstance(instanceId).catch((e) =>
-            console.error(`[wa] reconnect ${instanceId} failed:`, e),
-          );
-        }, 5000);
+        scheduleReconnect(instanceId, holder?.reachedServer ?? false);
       }
     }
   });
@@ -305,7 +338,11 @@ export async function startInstance(instanceId: string): Promise<void> {
 
       // AI auto-reply (skip if DNC was just triggered — already paused above)
       if (dncTrigger) continue;
-      const fresh = await prisma.wAInstance.findUnique({ where: { id: instanceId } });
+      // Без sessionBlob и groupsCache — они тяжёлые и здесь не нужны
+      const fresh = await prisma.wAInstance.findUnique({
+        where: { id: instanceId },
+        omit: { sessionBlob: true, groupsCache: true, qrCode: true },
+      });
       if (fresh && shouldAiReply(fresh, remoteJid)) {
         // Quota check — защита от пожирания токенов
         const tenant = await prisma.tenant.findUnique({
@@ -368,6 +405,11 @@ export async function startInstance(instanceId: string): Promise<void> {
 }
 
 export async function stopInstance(instanceId: string, opts: { logout?: boolean } = {}) {
+  const pending = reconnectTimers.get(instanceId);
+  if (pending) {
+    clearTimeout(pending);
+    reconnectTimers.delete(instanceId);
+  }
   const holder = sockets.get(instanceId);
   if (!holder) return;
   holder.closing = true;
@@ -378,6 +420,24 @@ export async function stopInstance(instanceId: string, opts: { logout?: boolean 
     console.warn(`[wa] stop ${instanceId}:`, (e as Error).message);
   }
   sockets.delete(instanceId);
+  if (!opts.logout) await holder.flush().catch(() => {});
+}
+
+/** Список групп, где состоит номер — для выбора группы отчётов в кабинете. Не критично, ошибки глотаем. */
+export async function refreshGroupsCache(instanceId: string, sock: WASocket): Promise<void> {
+  try {
+    // Небольшая пауза: сразу после open сервер ещё досылает метаданные
+    await new Promise((r) => setTimeout(r, 4000));
+    const groups = await sock.groupFetchAllParticipating();
+    const list = Object.values(groups)
+      .map((g) => ({ jid: g.id, name: g.subject || g.id, size: g.participants?.length ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, "ru"))
+      .slice(0, 200);
+    await prisma.wAInstance.update({ where: { id: instanceId }, data: { groupsCache: list } });
+    console.log(`[wa] ${instanceId} groups cached: ${list.length}`);
+  } catch (e) {
+    console.warn(`[wa] ${instanceId} groups fetch failed:`, (e as Error).message);
+  }
 }
 
 export async function sendText(
@@ -392,14 +452,20 @@ export async function sendText(
   return { whatsappId: res?.key?.id ?? null };
 }
 
-export function shutdownAll() {
+export async function shutdownAll() {
+  const flushes: Promise<void>[] = [];
   for (const [id, holder] of sockets.entries()) {
     holder.closing = true;
     try {
       holder.sock.end(undefined);
     } catch {}
     sockets.delete(id);
+    flushes.push(holder.flush().catch(() => {}));
   }
+  for (const t of reconnectTimers.values()) clearTimeout(t);
+  reconnectTimers.clear();
+  // Дописываем сессии в базу, иначе после рестарта ключи разъедутся (Bad MAC)
+  await Promise.all(flushes);
 }
 
 // Silence unused import warning — `proto` is re-exported for downstream consumers.

@@ -1,0 +1,24 @@
+# Fly.io: воркер Jamiwa (WhatsApp + AI). Деплой из корня репо: flyctl deploy -c worker/fly.toml
+# Секреты: flyctl secrets set -a jamiwa-worker DATABASE_URL=... WA_ENCRYPTION_KEY=... OPENROUTER_API_KEY=... \
+#   TELEGRAM_BOT_TOKEN=... TELEGRAM_ADMIN_CHAT_ID=499592803
+# Машина должна работать постоянно: WhatsApp держит WebSocket, засыпать нельзя.
+app = "jamiwa-worker"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  WORKER_NODE_KEY = "fly-fra-1"
+  WORKER_NODE_ID = "fly-fra-1"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+[processes]
+  app = "node dist/worker/src/index.js"
+
+# Нет http_service: процесс не слушает порт, Fly не должен его останавливать.
+[[restart]]
+  policy = "always"

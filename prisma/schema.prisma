@@ -167,8 +167,11 @@ model WAInstance {
   aiGreeting      String?      // first message after long pause
   aiMaxTurns      Int          @default(20)   // context window per chat
   aiOnlyDuringHrs Boolean      @default(false) // limit AI to working hours
-  aiWorkStartHr   Int?         // 0-23
+  aiWorkStartHr   Int?         // 0-23 (окно может переходить через полночь: 18 → 9 = бот вечером и ночью)
   aiWorkEndHr     Int?         // 0-23
+  aiTimezone      String       @default("Asia/Almaty") // IANA, по ней считаем час и день недели
+  aiWorkDays      Int[]        @default([1, 2, 3, 4, 5, 6, 7]) // дни, в которые действует окно часов (1=пн … 7=вс)
+  aiOffDaysActive Boolean      @default(false) // в остальные дни: true = бот отвечает весь день, false = молчит
   aiPausedChats   String[]     @default([])   // remoteJids where AI is muted (manual takeover)
 
   // Escalation — AI hands off to human
@@ -178,6 +181,15 @@ model WAInstance {
 
   // Knowledge base — injected into system prompt
   aiKnowledgeBase  String?   // free-form FAQ / price list / company info (max ~10000 chars)
+
+  // Lead reports — структурные поля лида и отчёт в WhatsApp-группу менеджеров
+  aiLeadFields       String?  // по одному полю на строку: «Имя», «Город», «Интерес (тур/круиз)», …
+  aiReportGroupJid   String?  // 1203…@g.us — куда слать «# Report»; null = только Telegram
+  aiReportGroupName  String?  // имя группы для отображения в кабинете
+  groupsCache        Json?    // [{ jid, name }] — группы, где состоит номер; обновляется при подключении
+  aiDailyDigest      Boolean  @default(true) // утренняя сводка за вчера в группу/Telegram
+  aiDigestHour       Int      @default(9)    // час отправки по aiTimezone
+  lastDigestDate     String?  // "2026-10-12" — за какой день сводка уже отправлена (защита от дублей)
 
   // Anti-ban
   connectedAt      DateTime?  // first time WA went CONNECTED — used to compute warm-up window
@@ -223,6 +235,10 @@ model Chat {
   name        String?
   lastMsgAt   DateTime?
   unread      Int        @default(0)
+  // Лид, собранный ботом: { status: "qualified"|"meeting", fields: {Имя: …}, meeting: {datetime, format} }
+  leadData       Json?
+  leadStatus     String?    // qualified | meeting — для списков и дайджеста
+  leadReportedAt DateTime?  // когда последний раз уходил отчёт в группу
   messages    Message[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
