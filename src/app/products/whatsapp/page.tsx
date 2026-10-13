@@ -281,7 +281,7 @@ export default function ProductLanding() {
             Подключите AI к WhatsApp <span className="gradient-text">за 30 секунд</span>
           </h2>
           <p className="text-muted-foreground mb-8">
-            7 дней бесплатно, без привязки карты. Отмена в один клик.
+            3 дня бесплатно, без привязки карты. Отключить можно в любой момент.
           </p>
           <Link
             href="/cabinet/signup"
