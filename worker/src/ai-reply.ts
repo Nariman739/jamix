@@ -273,14 +273,40 @@ async function handleLead(args: {
     data: { leadData: merged as unknown as object, leadStatus: merged.status },
   });
 
-  // Отчёт: только когда поле появилось впервые или статус стал «встреча»
+  // Отчёт: один на клиента, а не на каждое новое поле. Ждём LEAD_REPORT_DEBOUNCE_MS тишины
+  // (клиент за 10 минут называет имя, даты, состав — в группу уходит один «# Report»),
+  // «встреча» — сразу.
   const newKeys = Object.keys(merged.fields).filter((k) => !prev?.fields?.[k]);
   const becameMeeting = merged.status === "meeting" && prev?.status !== "meeting";
   if (!newKeys.length && !becameMeeting) return;
 
+  const pendingTimer = leadReportTimers.get(chatId);
+  if (pendingTimer) clearTimeout(pendingTimer);
+  if (becameMeeting) {
+    leadReportTimers.delete(chatId);
+    await sendLeadReport(inst, chatId, remoteJid, fromPhone);
+    return;
+  }
+  leadReportTimers.set(
+    chatId,
+    setTimeout(() => {
+      leadReportTimers.delete(chatId);
+      sendLeadReport(inst, chatId, remoteJid, fromPhone).catch((e) => console.error(`[lead] report failed:`, (e as Error).message));
+    }, LEAD_REPORT_DEBOUNCE_MS),
+  );
+}
+
+const LEAD_REPORT_DEBOUNCE_MS = 10 * 60_000;
+const leadReportTimers = new Map<string, NodeJS.Timeout>();
+
+/** Берём актуальный лид из базы (за время ожидания могли добавиться поля) и шлём отчёт в группу и Telegram. */
+async function sendLeadReport(inst: InstanceConfig, chatId: string, remoteJid: string, fromPhone: string | null) {
+  const chat = await prisma.chat.findUnique({ where: { id: chatId }, select: { leadData: true, name: true, phoneNumber: true } });
+  const lead = (chat?.leadData as LeadData | null) ?? null;
+  if (!lead) return;
   const report = formatLeadReport({
-    lead: merged,
-    fromPhone,
+    lead,
+    fromPhone: fromPhone ?? chat?.phoneNumber ?? null,
     remoteJid,
     instanceLabel: inst.label,
     chatName: chat?.name ?? null,
@@ -289,9 +315,9 @@ async function handleLead(args: {
   if (inst.aiReportGroupJid) {
     const { sendText } = await import("./instance-manager");
     await sendText(inst.id, inst.aiReportGroupJid, report);
-    await prisma.chat.update({ where: { id: chatId }, data: { leadReportedAt: new Date() } });
-    console.log(`[lead] ${inst.id} report → group ${inst.aiReportGroupJid} (${merged.status})`);
+    console.log(`[lead] ${inst.id} report → group (${lead.status})`);
   }
+  await prisma.chat.update({ where: { id: chatId }, data: { leadReportedAt: new Date() } });
 
   const tenant = await prisma.tenant.findUnique({ where: { id: inst.tenantId }, select: { telegramChatId: true } });
   if (tenant?.telegramChatId) {

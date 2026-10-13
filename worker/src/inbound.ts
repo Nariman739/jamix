@@ -279,6 +279,11 @@ async function voiceFallback(instanceId: string, chatId: string, remoteJid: stri
 }
 
 /** Склейка серии: ждём BATCH_MS тишины, затем один вызов ИИ на всё. Пока ответ готовится — новые копятся. */
+/** Внешний запуск ответа ИИ для чата (подхват сообщений без ответа при выходе бота на смену). */
+export function triggerAiForChat(args: { instanceId: string; chatId: string; remoteJid: string; phone: string | null; text: string }) {
+  queueForAi(args);
+}
+
 function queueForAi(args: { instanceId: string; chatId: string; remoteJid: string; phone: string | null; text: string }) {
   const { instanceId, chatId, remoteJid, phone, text } = args;
   let p = pending.get(chatId);

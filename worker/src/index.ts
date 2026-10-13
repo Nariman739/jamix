@@ -6,6 +6,7 @@ import { tickOutbound, recoverStuckJobs } from "./outbound-handler";
 import { tickBulkDetection } from "./antiban";
 import { tickGlobalQuotaAlert } from "./quota";
 import { tickDailyDigest } from "./digest";
+import { tickCatchup } from "./catchup";
 
 const NODE_KEY = process.env.WORKER_NODE_KEY || os.hostname();
 const POLL_MS = 1500;
@@ -152,6 +153,10 @@ async function main() {
     () => tickDailyDigest().catch((e) => console.error("[digest] tick error:", formatError(e))),
     DIGEST_MS,
   );
+  const catchupInterval = setInterval(
+    () => tickCatchup().catch((e) => console.error("[catchup] tick error:", formatError(e))),
+    60_000,
+  );
   await recoverStuckJobs().catch((e) => console.error("[out] recover error:", formatError(e)));
   const recoverInterval = setInterval(
     () => recoverStuckJobs().catch((e) => console.error("[out] recover error:", formatError(e))),
@@ -164,6 +169,7 @@ async function main() {
     tickInterval.clear();
     clearInterval(digestInterval);
     clearInterval(recoverInterval);
+    clearInterval(catchupInterval);
     clearInterval(heartbeatInterval);
     clearInterval(bulkInterval);
     clearInterval(quotaAlertInterval);
