@@ -25,7 +25,7 @@ import {
   LeadData,
   ReplyResult,
   PromptContext,
-  buildSystemPrompt,
+  buildSystemPromptParts,
   parseControlTokens,
   parseLeadFields,
   isWithinSchedule,
@@ -115,8 +115,15 @@ export async function generateAiReply(args: {
     while (turns.length && turns[0].role !== "user") turns.shift();
   }
 
-  const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-    { role: "system", content: buildSystemPrompt(inst, ctx) },
+  // Системный промпт двумя блоками: стабильный (роль, правила, база знаний) помечен для кэша провайдера —
+  // при повторных ответах в течение 5 минут он считается по цене ~0,1×. Изменяемый (время, клиент) — следом.
+  const { stable, volatile } = buildSystemPromptParts(inst, ctx);
+  const systemContent = [
+    { type: "text", text: stable, cache_control: { type: "ephemeral" } },
+    { type: "text", text: volatile },
+  ];
+  const messages = [
+    { role: "system" as const, content: systemContent as unknown as string },
     ...turns,
   ];
 
@@ -133,7 +140,8 @@ export async function generateAiReply(args: {
     const raw = res.choices[0]?.message?.content?.trim() || "";
     const finish = res.choices[0]?.finish_reason;
     if (res.usage) {
-      console.log(`[ai] ${inst.id} usage in=${res.usage.prompt_tokens} out=${res.usage.completion_tokens} finish=${finish}`);
+      const cached = (res.usage as { prompt_tokens_details?: { cached_tokens?: number } }).prompt_tokens_details?.cached_tokens ?? 0;
+      console.log(`[ai] ${inst.id} usage in=${res.usage.prompt_tokens} (cached ${cached}) out=${res.usage.completion_tokens} finish=${finish}`);
     }
     if (finish === "length") console.warn(`[ai] ${inst.id} reply truncated by max_tokens`);
     if (process.env.WA_LOG_LEVEL) console.log(`[ai] raw: ${raw.replace(/\n/g, " ⏎ ").slice(0, 400)}`);

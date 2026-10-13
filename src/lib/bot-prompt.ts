@@ -140,7 +140,8 @@ export function managerStatus(inst: InstanceConfig, now = new Date()): { working
   return { working: false, nextStart: `сегодня с ${end}:00` };
 }
 
-export function buildSystemPrompt(inst: InstanceConfig, ctx: PromptContext): string {
+/** Промпт двумя частями: stable (роль, правила, база — кэшируется провайдером) и volatile (время, клиент). */
+export function buildSystemPromptParts(inst: InstanceConfig, ctx: PromptContext): { stable: string; volatile: string } {
   const tz = inst.aiTimezone || "Asia/Almaty";
   const business = inst.aiBusinessName || "компании";
   const leadFields = parseLeadFields(inst.aiLeadFields);
@@ -163,7 +164,7 @@ export function buildSystemPrompt(inst: InstanceConfig, ctx: PromptContext): str
   lines.push("", "О КОМПАНИИ И РОЛИ (заполнено владельцем):", inst.aiSystemPrompt || "(не заполнено)");
   lines.push("", "ЖЁСТКИЕ ПРАВИЛА:");
   lines.push(
-    `1. Честность про ИИ. ${ctx.firstBotMessage ? `Это твоё первое сообщение этому клиенту: начни с короткого «Здравствуйте! Я виртуальный помощник «${business}». Если нужно, подключу менеджера.» ` : ""}Если спросят «вы бот / живой человек?» — всегда честно: «Я виртуальный помощник, но могу передать вас менеджеру».`,
+    `1. Честность про ИИ. В первом сообщении новому клиенту (см. раздел О КЛИЕНТЕ) представься: «Здравствуйте! Я виртуальный помощник «${business}». Если нужно, подключу менеджера.» Если спросят «вы бот / живой человек?» — всегда честно: «Я виртуальный помощник, но могу передать вас менеджеру».`,
   );
   lines.push(
     "2. Только факты из базы знаний. Цены, скидки, акции, даты, наличие мест, сроки, условия оплаты и возврата называй ТОЛЬКО так, как они написаны в базе ниже. Не округляй, не считай скидки, не обещай того, чего там нет. Если ответа в базе нет — скажи «Уточню у менеджера и вернусь с ответом» и поставь токен [ASK: …].",
@@ -181,13 +182,6 @@ export function buildSystemPrompt(inst: InstanceConfig, ctx: PromptContext): str
   lines.push("- Если клиент прислал несколько сообщений подряд — ответь на всё одним сообщением.");
   lines.push("- Пример хорошего ответа: «Да, на 23 декабря места есть. Сколько вас будет и нужны ли детские места?»");
   lines.push("- Пример плохого ответа: «Здравствуйте! 😊 Благодарим за Ваш интерес к нашей компании! Мы с радостью поможем Вам!»");
-  lines.push("", "СЕЙЧАС:");
-  lines.push(`- Дата и время: ${formatLocalDateTime(new Date(), tz)} (${tz}).`);
-  lines.push(`- ${managerLine}. Если менеджер не работает, не обещай быстрый звонок — говори, когда он ответит на самом деле.`);
-  lines.push("", "О КЛИЕНТЕ:");
-  lines.push(`- Имя в WhatsApp: ${ctx.chatName || "неизвестно"}`);
-  lines.push(`- Уже известно: ${known || "ничего"}. Не переспрашивай то, что уже известно.`);
-  if (gapDays != null && gapDays >= 3) lines.push(`- Клиент вернулся после перерыва (${gapDays} дн.) — уточни, актуален ли прошлый запрос.`);
   if (leadFields.length) {
     lines.push("", `ЧТО ВЫЯСНИТЬ (по ходу разговора, естественно, по одному вопросу): ${leadFields.join(", ")}.`);
   }
@@ -201,12 +195,27 @@ export function buildSystemPrompt(inst: InstanceConfig, ctx: PromptContext): str
   if (inst.aiEscalateOnHotLead) lines.push("[ESCALATE: кратко, что хочет клиент] — клиент готов купить, забронировать или просит счёт.");
   if (inst.aiEscalateOnHandoff) {
     lines.push(
-      `[HANDOFF] — клиент просит живого человека, жалуется или вопрос явно не для тебя. Клиенту скажи: «Передаю менеджеру — он ответит ${ms.nextStart || "в ближайшее время"}».`,
+      "[HANDOFF] — клиент просит живого человека, жалуется или вопрос явно не для тебя. Клиенту скажи: «Передаю менеджеру — он ответит …» и подставь, когда менеджер ответит на самом деле (см. раздел СЕЙЧАС).",
     );
   }
   lines.push("[ASK: вопрос клиента] — ответа нет в базе знаний.");
   lines.push("[DNC] — клиент просит больше не писать.");
-  return lines.join("\n");
+
+  const v: string[] = [];
+  v.push("", "СЕЙЧАС:");
+  v.push(`- Дата и время: ${formatLocalDateTime(new Date(), tz)} (${tz}).`);
+  v.push(`- ${managerLine}. Если менеджер не работает, не обещай быстрый звонок — говори, когда он ответит на самом деле.`);
+  v.push("", "О КЛИЕНТЕ:");
+  v.push(`- Имя в WhatsApp: ${ctx.chatName || "неизвестно"}`);
+  v.push(ctx.firstBotMessage ? "- Ты ещё не писал этому клиенту: это первое сообщение, представься (правило 1)." : "- Вы уже общались в этом диалоге: не представляйся и не здоровайся повторно.");
+  v.push(`- Уже известно: ${known || "ничего"}. Не переспрашивай то, что уже известно.`);
+  if (gapDays != null && gapDays >= 3) v.push(`- Клиент вернулся после перерыва (${gapDays} дн.) — уточни, актуален ли прошлый запрос.`);
+  return { stable: lines.join("\n"), volatile: v.join("\n") };
+}
+
+export function buildSystemPrompt(inst: InstanceConfig, ctx: PromptContext): string {
+  const { stable, volatile } = buildSystemPromptParts(inst, ctx);
+  return `${stable}\n\n${volatile}`;
 }
 
 // ===== parse =====
